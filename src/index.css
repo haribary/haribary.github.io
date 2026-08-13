@@ -1,0 +1,516 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+/* Touch devices can't hover, so some copy and affordances change. */
+@custom-variant hover-none (@media (hover: none));
+
+/* ── Design tokens ──────────────────────────────────────────────────────────
+   Light is the default; `.dark` on <html> swaps the same token names so every
+   component stays theme-agnostic.                                           */
+:root {
+  --background: oklch(0.985 0.003 260);
+  --foreground: oklch(0.19 0.014 265);
+  --muted: oklch(0.55 0.012 265);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.965 0.004 265);
+  --line: oklch(0.9 0.006 265);
+  --line-strong: oklch(0.8 0.01 265);
+
+  /* Berkeley blue / founders rock / california gold */
+  --accent: oklch(0.36 0.09 250);
+  --accent-soft: oklch(0.55 0.09 245);
+  --gold: oklch(0.74 0.13 82);
+
+  --grid-line: oklch(0.72 0.014 265 / 0.8);
+  /* decorative filled cells — deliberately weaker than the nav squares */
+  --grid-fill: oklch(0.87 0.008 265 / 0.85);
+  --grid-glow: oklch(0.5 0.1 248 / 0.9);
+  /* 3D blocks. Lit from the top-left, so the top and left flanks read brightest;
+     the tilt only ever exposes those two. */
+  --block-face: oklch(0.805 0.018 260);
+  --block-face-hover: oklch(0.895 0.014 258);
+  --block-edge: oklch(0.7 0.016 262);
+  --block-side-top: oklch(0.96 0.008 262);
+  --block-side-left: oklch(0.91 0.011 262);
+  --block-side-right: oklch(0.68 0.016 262);
+  --block-side-bottom: oklch(0.62 0.017 262);
+  --socket: oklch(0.8 0.014 262);
+  --socket-shadow: oklch(0.35 0.03 265 / 0.35);
+  /* etched social marks: face sits a shade apart from the nav blocks (the old
+     decorative-fill tone), plus groove incision, lit lower lip, and the light
+     that leaks out of the cracks on hover */
+  --social-face: oklch(0.875 0.008 265);
+  --etch-groove: oklch(0.57 0.022 262);
+  --etch-lip: oklch(1 0 0 / 0.55);
+  --etch-glow: oklch(0.72 0.15 78 / 0.9);
+  --etch-core: oklch(0.62 0.16 70);
+  --scrim: oklch(0.88 0.012 265 / 0.6);
+  --shadow-panel: 0 50px 130px -35px oklch(0.3 0.05 265 / 0.5);
+
+  --radius: 4px;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    "Times New Roman", serif;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Inter, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono",
+    Menlo, monospace;
+}
+
+.dark {
+  --background: oklch(0.145 0.012 265);
+  --foreground: oklch(0.95 0.006 265);
+  --muted: oklch(0.65 0.014 265);
+  --surface: oklch(0.185 0.014 265);
+  --surface-2: oklch(0.22 0.016 265);
+  --line: oklch(0.32 0.014 265);
+  --line-strong: oklch(0.42 0.018 265);
+
+  --accent: oklch(0.72 0.11 245);
+  --accent-soft: oklch(0.62 0.1 248);
+  --gold: oklch(0.82 0.14 85);
+
+  --grid-line: oklch(0.52 0.016 265 / 0.8);
+  --grid-fill: oklch(0.28 0.016 265 / 0.9);
+  --grid-glow: oklch(0.78 0.12 245 / 0.95);
+  --block-face: oklch(0.345 0.03 258);
+  --block-face-hover: oklch(0.38 0.028 258);
+  --block-edge: oklch(0.44 0.022 262);
+  --block-side-top: oklch(0.5 0.03 258);
+  --block-side-left: oklch(0.42 0.028 260);
+  --block-side-right: oklch(0.19 0.016 262);
+  --block-side-bottom: oklch(0.145 0.014 262);
+  --socket: oklch(0.1 0.01 265);
+  --socket-shadow: oklch(0 0 0 / 0.75);
+  --social-face: oklch(0.27 0.016 265);
+  --etch-groove: oklch(0.145 0.012 262);
+  --etch-lip: oklch(1 0 0 / 0.09);
+  --etch-glow: oklch(0.85 0.15 88 / 0.95);
+  --etch-core: oklch(0.93 0.13 95);
+  --scrim: oklch(0.11 0.014 265 / 0.72);
+  --shadow-panel: 0 40px 140px -30px oklch(0 0 0 / 0.85);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-grid-fill: var(--grid-fill);
+  --color-grid-line: var(--grid-line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
+  --color-border: var(--line);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-base: var(--radius);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: white;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-soft);
+    outline-offset: 3px;
+  }
+}
+
+@utility label-caps {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Thin, theme-aware scrollbar for panel bodies */
+@utility scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--line-strong);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+}
+
+/* terminal caret after the name */
+@keyframes caret {
+  0%,
+  52% {
+    opacity: 1;
+  }
+  53%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Always blinking — a text caret is an affordance, not vestibular motion, so it
+   is exempted from the reduced-motion kill switch below. */
+@utility caret-blink {
+  animation: caret 1.1s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The caret and the day/night toggle keep their animation: one is a text
+     affordance, the other is a deliberate, self-contained piece of theatre.
+
+     Transitions get 0s, NOT 0.01ms: transition-property defaults to `all`, so
+     a non-zero duration turns every style write into a micro-transition —
+     including the per-frame clip-path/transform writes driven by motion
+     values, which then render a frame out of sync with each other (the 3D
+     blocks visibly came apart mid-pop). A 0s transition never starts, so
+     changes apply instantly. Animations keep 0.01ms so animationend fires. */
+  *:where(:not(.caret-blink, .day-night, .day-night *)),
+  *:where(:not(.caret-blink, .day-night, .day-night *))::before,
+  *:where(:not(.caret-blink, .day-night, .day-night *))::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* ── "Night && Day" theme toggle — jh3y (codepen.io/jh3y/pen/LYgjpYZ) ───────
+   Scoped under .day-night; sized down from the pen's demo scale. All motion is
+   driven by --dark (0/1), flipped by [aria-pressed]. */
+
+.day-night {
+  --slide-ease: cubic-bezier(0.4, -0.3, 0.6, 1.3);
+  --easing: var(--slide-ease);
+  --speed: 0.5s;
+  --width: clamp(54px, 4.2vw, 60px);
+  --ar: 8 / 3;
+  --ray: hsl(0 0% 100% / 0.5);
+  --sun: hsl(47, 91%, 58%);
+  --moon: hsl(212, 13%, 82%);
+  --crater: hsl(221, 16%, 68%);
+  --bear-speed: 10s;
+
+  -webkit-tap-highlight-color: transparent;
+  width: var(--width);
+  will-change: transform;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  aspect-ratio: var(--ar);
+  border-radius: 100vh;
+  border: 0;
+  /* no `position` here: this block is unlayered and would beat the layered
+     Tailwind `fixed` utility that App.tsx uses to place the button */
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background var(--speed) var(--easing);
+  outline-color: transparent;
+  background: hsl(
+    calc(204 + (var(--dark, 0) * 25)) calc((53 - (var(--dark, 0) * 28)) * 1%)
+      calc((47 - (var(--dark, 0) * 31)) * 1%)
+  );
+  box-shadow:
+    calc(var(--width) * 0) calc(var(--width) * 0.02) calc(var(--width) * 0.01)
+      calc(var(--width) * -0.0025) hsl(210 10% 100% / 0.95),
+    calc(var(--width) * 0) calc(var(--width) * -0.02) calc(var(--width) * 0.01)
+      calc(var(--width) * -0.0025) hsl(210 10% 10% / 0.2),
+    calc(var(--width) * 0) calc(var(--width) * 0.02) calc(var(--width) * 0.5) 0
+      hsl(210 10% 100% / 0.15);
+}
+
+.day-night[aria-pressed="true"] {
+  --dark: 1;
+}
+
+.day-night::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    calc(var(--width) * 0) calc(var(--width) * -0.025) calc(var(--width) * 0.025)
+      0 hsl(210 10% 10% / 0.15) inset,
+    calc(var(--width) * 0) calc(var(--width) * 0.025) calc(var(--width) * 0.025)
+      0 hsl(210 10% 10% / 0.65) inset;
+  border-radius: 100vh;
+}
+
+.day-night .toggle__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-radius: 100vh;
+  display: block;
+  clip-path: inset(0 0 0 0 round 100vh);
+  container-type: inline-size;
+}
+
+.day-night .toggle__backdrop {
+  overflow: visible !important;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  transition: translate var(--speed) var(--easing);
+  translate: 0 calc(var(--dark, 0) * (100% - (3 / 8 * var(--width))));
+}
+
+.day-night[aria-pressed="false"] .toggle__backdrop:last-of-type {
+  transition-timing-function: cubic-bezier(0.2, -0.6, 0.7, 1.6);
+}
+
+.day-night[aria-pressed="false"] .stars path {
+  transition-delay: 0s;
+}
+
+.day-night .toggle__backdrop:first-of-type .clouds path:first-of-type {
+  fill: var(--ray);
+}
+
+.day-night .stars path {
+  transform-box: fill-box;
+  transform-origin: 25% 50%;
+  scale: calc(0.25 + (var(--dark, 0) * 0.75));
+  transition: scale var(--speed) calc(var(--speed) * 0.5) var(--easing);
+}
+
+.day-night .toggle__indicator-wrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.day-night .toggle__indicator {
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 0%;
+  display: grid;
+  place-items: center;
+  padding: 3%;
+  transition: translate var(--speed) var(--slide-ease);
+  translate: calc(var(--dark, 0) * (100cqi - 100%)) 0;
+}
+
+.day-night .toggle__star {
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: relative;
+  transition: translate var(--speed) var(--easing);
+  translate: calc((var(--dark, 0) * -10%) + 5%) 0;
+}
+
+.day-night .sun {
+  background: var(--sun);
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    calc(var(--width) * 0.01) calc(var(--width) * 0.01) calc(var(--width) * 0.02)
+      0 hsl(210 10% 100% / 0.95) inset,
+    calc(var(--width) * -0.01) calc(var(--width) * -0.01)
+      calc(var(--width) * 0.02) 0 hsl(210 10% 20% / 0.5) inset;
+}
+
+.day-night .moon {
+  position: absolute;
+  inset: -1%;
+  border-radius: 50%;
+  background: var(--moon);
+  transition: translate var(--speed) ease-in-out;
+  translate: calc((100 - (var(--dark, 0) * 100)) * 1%) 0%;
+  box-shadow:
+    calc(var(--width) * 0.01) calc(var(--width) * 0.01) calc(var(--width) * 0.02)
+      0 hsl(210 10% 100% / 0.95) inset,
+    calc(var(--width) * -0.01) calc(var(--width) * -0.01)
+      calc(var(--width) * 0.02) 0 hsl(210 10% 10% / 0.95) inset;
+}
+
+.day-night .moon__crater {
+  position: absolute;
+  background: var(--crater);
+  border-radius: 50%;
+  width: calc(var(--size, 10) * 1%);
+  aspect-ratio: 1;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  box-shadow:
+    calc(var(--width) * 0.01) calc(var(--width) * 0.01) calc(var(--width) * 0.01)
+      0 hsl(210 10% 6% / 0.25) inset,
+    0 calc(var(--width) * 0.005) calc(var(--width) * 0.01) 0
+      hsl(210 10% 100% / 0.25);
+}
+
+.day-night .moon__crater:nth-of-type(1) {
+  --size: 18;
+  --x: 40;
+  --y: 15;
+}
+.day-night .moon__crater:nth-of-type(2) {
+  --size: 20;
+  --x: 65;
+  --y: 58;
+}
+.day-night .moon__crater:nth-of-type(3) {
+  --size: 34;
+  --x: 18;
+  --y: 40;
+}
+
+.day-night .toggle__star::before {
+  content: "";
+  z-index: -1;
+  width: 356%;
+  background:
+    radial-gradient(hsl(0 0% 100% / 0.25) 40%, transparent 40.5%),
+    radial-gradient(hsl(0 0% 100% / 0.25) 56%, transparent 56.5%)
+      hsl(0 0% 100% / 0.25);
+  border-radius: 50%;
+  aspect-ratio: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: translate var(--speed) var(--easing);
+  translate: calc((50 - (var(--dark, 0) * 4)) * -1%) -50%;
+}
+
+.day-night .toggle__star::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: hsl(0 0% 0% / 0.5);
+  filter: blur(4px);
+  translate: 2% 4%;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.day-night .stars g {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.day-night .stars g:nth-of-type(3) {
+  animation: dn-twinkle 4s -2s infinite;
+}
+.day-night .stars g:nth-of-type(11) {
+  animation: dn-twinkle 6s -2s infinite;
+}
+.day-night .stars g:nth-of-type(9) {
+  animation: dn-twinkle 4s -1s infinite;
+}
+
+@keyframes dn-twinkle {
+  0%,
+  40%,
+  60%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0);
+  }
+}
+
+.day-night .astrobear__container {
+  position: absolute;
+  overflow: hidden;
+  inset: 0;
+  clip-path: inset(0 0 0 0);
+  opacity: var(--dark, 0);
+  translate: 0 calc(-200% + (var(--dark, 0) * 200%));
+  transition:
+    opacity var(--speed) var(--easing),
+    translate var(--speed) var(--easing);
+}
+
+.day-night .astrobear {
+  width: 12%;
+  position: absolute;
+  top: 100%;
+  left: 0%;
+  transition: translate
+    calc(var(--speed) + (var(--dark, 0) * (var(--bear-speed) - var(--speed))))
+    calc(var(--bear-speed) * (0.4 * var(--dark, 0))) linear;
+  translate: calc(var(--dark, 0) * 400%) calc(var(--dark, 0) * -350%);
+}
+
+.day-night .astrobear svg {
+  transform-origin: 50% 75%;
+  scale: var(--dark, 0);
+  rotate: calc(var(--dark, 0) * 360deg);
+  transition:
+    rotate
+      calc(var(--speed) + (var(--dark, 0) * (var(--bear-speed) - var(--speed))))
+      calc(var(--bear-speed) * 0.4) linear,
+    scale var(--speed) ease-in-out;
+}
+
+.day-night .pilot__container {
+  position: absolute;
+  overflow: hidden;
+  inset: 0;
+  clip-path: inset(0 0 0 0);
+  opacity: calc(1 - var(--dark, 0));
+  translate: 0 calc(var(--dark, 0) * 200%);
+  transition:
+    opacity var(--speed) var(--easing),
+    translate var(--speed) var(--easing);
+}
+
+.day-night .pilot-bear {
+  width: 18%;
+  position: absolute;
+  top: 70%;
+  left: 100%;
+  transition: translate
+    calc(
+      var(--speed) +
+        ((1 - var(--dark, 0)) * ((var(--bear-speed) * 0.5) - var(--speed)))
+    )
+    calc((var(--bear-speed) * 0.5) * ((1 - var(--dark, 0)) * 0.4)) linear;
+  translate: calc((0 - (1 - var(--dark, 0))) * (var(--width) + 100%))
+    calc((0 - (1 - var(--dark, 0))) * (200%));
+}
+
+.day-night .pilot {
+  rotate: 12deg;
+  animation: dn-fly 4s infinite ease-in-out;
+}
+
+@keyframes dn-fly {
+  50% {
+    translate: 0 -25%;
+  }
+}
