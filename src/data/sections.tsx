@@ -4,13 +4,25 @@ import {
   FileDown,
   FlaskConical,
   FolderGit2,
-  GraduationCap,
   ScrollText,
   User,
 } from "lucide-react"
 
-import { Card, Kicker, Pill, Prose, Stat } from "@/components/panel-bits"
+import { Card, Kicker, Prose, Stat } from "@/components/panel-bits"
 import { CoverflowCarousel } from "@/components/ui/coverflow-carousel"
+
+function A({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="text-accent-soft underline-offset-4 transition-colors hover:text-accent hover:underline"
+    >
+      {children}
+    </a>
+  )
+}
 
 const aboutSlides = [
   { src: "/files/profile_pic.jpeg", alt: "Harrison Li" },
@@ -42,41 +54,26 @@ export const sections: Section[] = [
     icon: User,
     body: () => (
       <div className="flex h-full flex-col">
-        <div className="flex flex-col">
-          <Kicker>Who I am</Kicker>
-          <Prose>
+        <Prose>
+          <div className="max-w-[62ch] space-y-4">
             <p>
-              I'm an undergraduate at <strong>UC Berkeley</strong> studying Computer
-              Science and Data Science. My interests span{" "}
-              <strong>agentic AI</strong>, <strong>reinforcement learning</strong>, and{" "}
-              <strong>speech processing</strong> — mostly at the seam where the three
-              meet.
+              Hi! I'm an undergraduate at <strong>UC Berkeley</strong> studying
+              Computer Science and Data Science. My interests span agent evals,
+              reinforcement learning, audio processing, and software engineering.
             </p>
             <p>
-              Right now I research at <strong>BAIR</strong> with the Berkeley Speech
-              Group, building dynamic agents for speech-language disorder screening in
-              partnership with UCSF. Before that: a run of hackathon builds that turned
-              into real systems.
+              Currently, I'm building <A href="https://lyrnmusic.com">Lyrn AI</A>,
+              the only ai-native music VLE. I also do speech AI research at{" "}
+              <A href="https://bair.berkeley.edu">BAIR</A> in the{" "}
+              <A href="https://people.eecs.berkeley.edu/~gopala/">
+                Berkeley Speech Group
+              </A>{" "}
+              in collaboration with UCSF. I work primarily on evals, of which I've
+              published research at NeurIPS and Interspeech.
             </p>
-            <p>
-              Outside the lab I like small, fast tools, well-set type, and interfaces
-              that feel like they were drawn on purpose.
-            </p>
-          </Prose>
-
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Pill href="https://github.com/haribary">GitHub</Pill>
-            <Pill href="https://www.linkedin.com/in/harrison-li-60b551368/">
-              LinkedIn
-            </Pill>
-            <Pill
-              href="https://scholar.google.com/citations?hl=en&user=a3g1GUwAAAAJ"
-              icon={GraduationCap}
-            >
-              Scholar
-            </Pill>
+            <p>I like swimming, piano, and porter robinson.</p>
           </div>
-        </div>
+        </Prose>
 
         <CoverflowCarousel
           className="mt-auto"
