@@ -1,0 +1,706 @@
+/* Reel. Every selector is scoped under .x-reel or html[data-lab="reel"]. */
+
+html[data-lab="reel"] {
+  background: #ffe27a;
+  scrollbar-color: #0f3b2e #ffe27a;
+}
+html[data-lab="reel"] body {
+  background: #ffe27a;
+  color: #0f3b2e;
+  margin: 0;
+}
+
+.x-reel {
+  --butter: #ffe27a;
+  --forest: #0f3b2e;
+  --lilac: #c9b6ff;
+  --tomato: #f04a2e;
+  --offwhite: #f6f3ec;
+  --ink: #101312;
+  --reel-wdth: 62;
+  --gutter: clamp(16px, 4vw, 64px);
+
+  position: relative;
+  font-family: "Archivo Variable", system-ui, sans-serif;
+  font-weight: 400;
+  font-variation-settings: "wdth" 100;
+  color: var(--forest);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+.x-reel *,
+.x-reel *::before,
+.x-reel *::after {
+  box-sizing: border-box;
+}
+
+.x-reel a {
+  color: inherit;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.16em;
+}
+.x-reel a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.x-reel .reel-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.x-reel .reel-canvas canvas {
+  display: block;
+}
+
+.x-reel .reel-main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Giant display type: one family, black, extra-condensed, breathing. */
+.x-reel .reel-giant {
+  margin: 0;
+  font-weight: 900;
+  font-variation-settings: "wght" 900, "wdth" var(--reel-wdth);
+  text-transform: uppercase;
+  line-height: 0.8;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.x-reel .reel-edge {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 1px);
+  width: 100%;
+  height: 36vh;
+  display: block;
+  pointer-events: none;
+  fill: var(--field);
+}
+
+.x-reel .sr-only,
+.x-reel .reel-interests-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- */
+/* 1. Opening */
+
+.x-reel .reel-open {
+  position: relative;
+  height: 100vh;
+  height: 100lvh;
+}
+
+/* The visible name is drawn in WebGL; this is the real heading. */
+.x-reel .reel-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  margin: 0;
+}
+
+.x-reel .reel-open__meta {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(20px, 5vh, 56px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  will-change: opacity;
+}
+.x-reel .reel-role {
+  margin: 0;
+  max-width: 34em;
+  text-wrap: balance;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.3;
+  font-weight: 500;
+}
+.x-reel .reel-cue {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.x-reel .reel-cue__line {
+  position: relative;
+  width: 56px;
+  height: 2px;
+  background: color-mix(in srgb, currentColor 25%, transparent);
+  overflow: hidden;
+}
+.x-reel .reel-cue__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transform-origin: left;
+  animation: reel-cue 2.2s cubic-bezier(0.7, 0, 0.2, 1) infinite;
+}
+@keyframes reel-cue {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  50.01% {
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* 2. Spiral */
+
+.x-reel .reel-spiral {
+  position: relative;
+  height: 560vh;
+  color: var(--butter);
+}
+.x-reel .reel-spiral__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  padding: clamp(18px, 3vh, 32px) var(--gutter);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.x-reel .reel-label {
+  align-self: flex-start;
+  margin: 0 0 0 -10px;
+  padding: 6px 10px;
+  background: var(--forest);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+.x-reel .reel-caption {
+  align-self: flex-start;
+  margin: 0 0 0 -12px;
+  padding: 8px 12px;
+  background: var(--forest);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 500;
+  line-height: 1.25;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.x-reel .reel-caption__count {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.x-reel .reel-photos {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------- */
+/* 3. About */
+
+.x-reel .reel-about {
+  --field: var(--forest);
+  position: relative;
+  background: var(--forest);
+  color: var(--butter);
+  padding: 6vh 0 30vh;
+}
+.x-reel .reel-about__h {
+  font-size: 41vw;
+  margin-left: -0.035em;
+  margin-bottom: 9vh;
+}
+.x-reel .reel-about__body {
+  padding: 0 var(--gutter);
+  max-width: 1500px;
+}
+.x-reel .reel-about__p {
+  margin: 0 0 1.1em;
+  max-width: 21em;
+  font-size: clamp(26px, 3.55vw, 60px);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  font-weight: 400;
+}
+.x-reel .reel-about__p:nth-child(2) {
+  margin-left: auto;
+}
+.x-reel .reel-about__p:nth-child(3) {
+  margin-left: 12%;
+}
+.x-reel .reel-about__p strong {
+  font-weight: 700;
+}
+.x-reel .reel-word {
+  will-change: opacity;
+}
+
+/* ---------------------------------------------------------------- */
+/* 4. Projects */
+
+.x-reel .reel-projects {
+  --field: var(--lilac);
+  position: relative;
+  background: var(--lilac);
+  color: var(--forest);
+}
+.x-reel .reel-projects__viewport {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  position: relative;
+}
+.x-reel .reel-projects__track {
+  display: flex;
+  align-items: flex-start;
+  height: 100%;
+  width: max-content;
+  padding-left: var(--gutter);
+  will-change: transform;
+}
+.x-reel .reel-projects__h {
+  align-self: center;
+  font-size: min(66vh, 56vw);
+  line-height: 0.74;
+  margin-right: 9vw;
+  padding-top: 0.04em;
+}
+
+.x-reel .reel-proj {
+  --w: clamp(300px, 40vw, 720px);
+  position: relative;
+  width: var(--w);
+  margin-top: calc(var(--y) + 64px);
+  margin-right: 14vw;
+  scale: var(--depth);
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.x-reel .reel-proj__title {
+  position: relative;
+  z-index: 0;
+  /* Fully visible, caps resting just above the frame's top edge. */
+  margin: 0 0 -0.03em;
+  font-size: calc(var(--w) * 0.27);
+  font-weight: 900;
+  font-variation-settings: "wght" 900, "wdth" var(--reel-wdth);
+  text-transform: uppercase;
+  line-height: 0.8;
+  white-space: nowrap;
+  margin-left: -0.04em;
+  will-change: transform;
+}
+.x-reel .reel-proj__frame {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--forest);
+}
+.x-reel .reel-proj__img {
+  position: absolute;
+  top: 0;
+  left: -12%;
+  width: 124%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+}
+.x-reel .reel-proj__tags {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.x-reel .reel-proj__blurb {
+  margin: 12px 0 0;
+  max-width: 34em;
+  font-size: clamp(15px, 1.12vw, 18px);
+  line-height: 1.5;
+}
+.x-reel .reel-proj__links {
+  margin: 14px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.x-reel .reel-projects__tail {
+  flex: none;
+  width: 1px;
+}
+
+/* ---------------------------------------------------------------- */
+/* 5. Research */
+
+.x-reel .reel-research {
+  --field: var(--offwhite);
+  position: relative;
+  background: var(--offwhite);
+  color: var(--ink);
+  padding: 8vh 0 28vh;
+}
+.x-reel .reel-research__h {
+  font-size: 25.5vw;
+  margin-left: -0.03em;
+  margin-bottom: 10vh;
+}
+.x-reel .reel-paper {
+  --year: 24vw;
+  --title: clamp(30px, 3.2vw, 48px);
+  display: grid;
+  /* Fixed year column, so the numeral's arrival never squeezes the text. */
+  grid-template-columns: calc(var(--year) * 1.62) minmax(0, 1fr);
+  align-items: start;
+  gap: 3vw;
+  padding: 0 var(--gutter);
+  margin-bottom: 16vh;
+}
+.x-reel .reel-paper:last-of-type {
+  margin-bottom: 0;
+}
+.x-reel .reel-year {
+  margin: 0 0 0 -0.05em;
+  display: flex;
+  font-size: var(--year);
+  line-height: 0.78;
+  font-weight: 900;
+}
+.x-reel .reel-year__mask {
+  display: block;
+  overflow: hidden;
+  padding-top: 0.04em;
+}
+.x-reel .reel-year__d {
+  --arrive-w: 0;
+  display: block;
+  font-variation-settings: "wght" 900, "wdth" calc(var(--reel-wdth) + var(--arrive-w));
+  will-change: transform;
+}
+/* The title's cap line sits on the year's cap line. */
+.x-reel .reel-paper__text {
+  padding-top: calc(var(--year) * 0.066 - var(--title) * 0.17);
+  max-width: 40em;
+}
+.x-reel .reel-paper__title {
+  margin: 0;
+  font-size: var(--title);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.x-reel .reel-paper__venue {
+  margin: 22px 0 0;
+  font-size: clamp(16px, 1.25vw, 19px);
+  font-weight: 600;
+}
+.x-reel .reel-paper__blurb {
+  margin: 14px 0 0;
+  max-width: 27em;
+  font-size: clamp(18px, 1.5vw, 22px);
+  line-height: 1.5;
+}
+.x-reel .reel-paper__links {
+  margin: 24px 0 0;
+  font-size: clamp(17px, 1.3vw, 20px);
+  font-weight: 600;
+}
+@media (max-width: 1200px) {
+  .x-reel .reel-paper {
+    --year: 20vw;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* 6. Contact */
+
+.x-reel .reel-contact {
+  --field: var(--tomato);
+  position: relative;
+  background: var(--tomato);
+  color: var(--offwhite);
+  padding: 6vh 0 0;
+  overflow-x: clip;
+}
+.x-reel .reel-contact__h {
+  display: flex;
+  flex-direction: column;
+  font-size: 43vw;
+  line-height: 0.76;
+}
+.x-reel .reel-contact__h span:first-child {
+  margin-left: -0.04em;
+}
+.x-reel .reel-contact__h span:last-child {
+  align-self: flex-end;
+  margin-right: -0.045em;
+}
+.x-reel .reel-contact__list {
+  list-style: none;
+  margin: 10vh 0 0;
+  padding: 0 var(--gutter);
+  display: grid;
+  gap: 2px;
+}
+.x-reel .reel-contact__list li {
+  display: grid;
+  grid-template-columns: 9em minmax(0, 1fr);
+  align-items: baseline;
+  gap: 16px;
+  padding: 1.1vw 0;
+  border-top: 2px solid color-mix(in srgb, var(--offwhite) 40%, transparent);
+}
+.x-reel .reel-contact__label {
+  font-size: 15px;
+  font-weight: 600;
+}
+.x-reel .reel-magnet {
+  max-width: 100%;
+}
+.x-reel .reel-contact__value {
+  display: inline-block;
+  font-size: clamp(28px, 5.4vw, 92px);
+  font-weight: 800;
+  font-variation-settings: "wght" 800, "wdth" 72;
+  line-height: 1;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  padding: 0.06em 0;
+}
+.x-reel .reel-contact__value:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+}
+
+.x-reel .reel-band {
+  margin-top: 14vh;
+  border-top: 2px solid var(--offwhite);
+  border-bottom: 2px solid var(--offwhite);
+  padding: 1.4vw 0;
+}
+.x-reel .reel-band .reel-band__row {
+  filter: none;
+  font-family: inherit;
+  font-size: clamp(40px, 8vw, 130px);
+  line-height: 1;
+  font-weight: 900;
+  font-variation-settings: "wght" 900, "wdth" var(--reel-wdth);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.x-reel .reel-band__sep {
+  display: inline-block;
+  margin: 0 0.35em;
+  font-size: 0.5em;
+  vertical-align: 0.4em;
+}
+
+.x-reel .reel-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px var(--gutter) 32px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- */
+/* Small screens */
+
+@media (max-width: 760px) {
+  .x-reel .reel-about__h {
+    font-size: 44vw;
+  }
+  .x-reel .reel-about__p,
+  .x-reel .reel-about__p:nth-child(2),
+  .x-reel .reel-about__p:nth-child(3) {
+    margin-left: 0;
+    font-size: clamp(25px, 7vw, 34px);
+  }
+  .x-reel .reel-proj {
+    --w: 80vw;
+    scale: 1;
+    margin-top: calc(var(--y) * 0.5 + 72px);
+    margin-right: 14vw;
+  }
+  .x-reel .reel-proj__blurb {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .x-reel .reel-paper {
+    --year: 50vw;
+    --title: 28px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    margin-bottom: 12vh;
+  }
+  .x-reel .reel-paper__text {
+    padding-top: 0;
+  }
+  .x-reel .reel-paper__blurb {
+    font-size: 18px;
+  }
+  .x-reel .reel-contact__list li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    padding: 14px 0;
+  }
+  .x-reel .reel-contact__value {
+    font-size: clamp(28px, 9vw, 44px);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Reduced motion: no WebGL, no wipes, no breathing. Plain cuts and a grid. */
+
+.x-reel[data-static] .reel-edge {
+  display: none;
+}
+.x-reel[data-static] .reel-open {
+  background: var(--butter);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 72px 0 0;
+  overflow: hidden;
+}
+.x-reel[data-static] .reel-name {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  display: flex;
+  flex-direction: column;
+  font-weight: 900;
+  font-variation-settings: "wght" 900, "wdth" 62;
+  text-transform: uppercase;
+  line-height: 0.8;
+  white-space: nowrap;
+}
+.x-reel[data-static] .reel-name__first {
+  font-size: 26vw;
+  margin-left: -0.05em;
+}
+.x-reel[data-static] .reel-name__last {
+  font-size: min(48vh, 70vw);
+  align-self: flex-end;
+  margin-right: -0.04em;
+}
+.x-reel[data-static] .reel-open__meta {
+  position: relative;
+  left: 0;
+  bottom: 0;
+  padding: 0 var(--gutter) 40px;
+}
+.x-reel[data-static] .reel-cue {
+  display: none;
+}
+.x-reel[data-static] .reel-spiral {
+  height: auto;
+  background: var(--forest);
+  padding: 8vh var(--gutter) 6vh;
+}
+.x-reel[data-static] .reel-spiral__sticky {
+  position: static;
+  height: auto;
+  padding: 0 0 32px;
+}
+.x-reel[data-static] .reel-caption {
+  display: none;
+}
+.x-reel[data-static] .reel-photos {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 28px 20px;
+}
+.x-reel[data-static] .reel-photos figure {
+  margin: 0;
+}
+.x-reel[data-static] .reel-photos img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.x-reel[data-static] .reel-photos figcaption {
+  margin-top: 10px;
+  font-size: 15px;
+}
+.x-reel[data-static] .reel-projects__viewport {
+  height: auto;
+  overflow: visible;
+}
+.x-reel[data-static] .reel-projects__track {
+  flex-direction: column;
+  width: auto;
+  padding: 8vh var(--gutter) 12vh;
+}
+.x-reel[data-static] .reel-projects__h {
+  align-self: flex-start;
+  font-size: 25vw;
+  margin: 0 0 8vh -0.04em;
+}
+.x-reel[data-static] .reel-proj {
+  scale: 1;
+  margin: 0 0 12vh;
+  --w: min(100%, 720px);
+}
+.x-reel[data-static] .reel-proj__title {
+  font-size: clamp(56px, 12vw, 150px);
+}
+.x-reel[data-static] .reel-photos img {
+  object-position: 50% 30%;
+}

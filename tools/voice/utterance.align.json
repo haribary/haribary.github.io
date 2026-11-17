@@ -1,0 +1,93 @@
+{
+    "text":  "Hi, I\u0027m Harrison Li.",
+    "voice":  "Microsoft David Desktop",
+    "words":  [
+                  {
+                      "text":  "Hi",
+                      "start":  0.1,
+                      "end":  0.395
+                  },
+                  {
+                      "text":  "I\u0027m",
+                      "start":  0.795,
+                      "end":  0.985
+                  },
+                  {
+                      "text":  "Harrison",
+                      "start":  0.985,
+                      "end":  1.51
+                  },
+                  {
+                      "text":  "Li",
+                      "start":  1.51,
+                      "end":  1.805
+                  }
+              ],
+    "phones":  [
+                   {
+                       "symbol":  "h",
+                       "start":  0.1,
+                       "end":  0.195
+                   },
+                   {
+                       "symbol":  "ay",
+                       "start":  0.195,
+                       "end":  0.395
+                   },
+                   {
+                       "symbol":  "ay",
+                       "start":  0.795,
+                       "end":  0.92
+                   },
+                   {
+                       "symbol":  "m",
+                       "start":  0.92,
+                       "end":  0.985
+                   },
+                   {
+                       "symbol":  "h",
+                       "start":  0.985,
+                       "end":  1.08
+                   },
+                   {
+                       "symbol":  "ae",
+                       "start":  1.08,
+                       "end":  1.15
+                   },
+                   {
+                       "symbol":  "r",
+                       "start":  1.15,
+                       "end":  1.24
+                   },
+                   {
+                       "symbol":  "ax",
+                       "start":  1.24,
+                       "end":  1.285
+                   },
+                   {
+                       "symbol":  "s",
+                       "start":  1.285,
+                       "end":  1.38
+                   },
+                   {
+                       "symbol":  "ax",
+                       "start":  1.38,
+                       "end":  1.44
+                   },
+                   {
+                       "symbol":  "n",
+                       "start":  1.44,
+                       "end":  1.51
+                   },
+                   {
+                       "symbol":  "l",
+                       "start":  1.51,
+                       "end":  1.605
+                   },
+                   {
+                       "symbol":  "iy",
+                       "start":  1.605,
+                       "end":  1.805
+                   }
+               ]
+}

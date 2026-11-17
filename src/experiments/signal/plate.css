@@ -1,0 +1,121 @@
+/* The two plates that open and close the page: the name as a dithered bitmap,
+   and the contact links as a row of icons. */
+
+/* --- The name ------------------------------------------------------------- */
+
+/* A blocky 8 by 8 pixel face. The script snaps the size to whole blocks; this
+   is the size before that, and what shows if the script never runs. */
+.x-signal h1.sg-bitmap {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  font-family: "Press Start 2P", ui-monospace, "Courier New", monospace;
+  font-style: normal;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 7.8vw, 9rem);
+  line-height: 1.25;
+  letter-spacing: 0;
+  /* Capitals, with half the face's very wide word space. */
+  text-transform: uppercase;
+  word-spacing: -0.5em;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  /* A little lower than the top of the plate. */
+  margin-top: clamp(0.75rem, 3.2svh, 2.25rem);
+}
+/* Once the bitmap is drawn the real text only keeps its place; it can still
+   be selected and is still what a screen reader reads. */
+.x-signal .sg-bitmap[data-drawn="true"] [data-word] {
+  color: transparent;
+}
+.x-signal .sg-bitmap [data-word]::selection {
+  background: color-mix(in srgb, var(--link) 28%, transparent);
+  color: transparent;
+}
+.x-signal .sg-bitmap__canvas {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.x-signal .sg-bitmap[data-drawn="false"] .sg-bitmap__canvas {
+  visibility: hidden;
+}
+
+/* --- Contact -------------------------------------------------------------- */
+
+.x-signal .sg-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem clamp(0.75rem, 2.4vw, 2rem);
+  margin: 1.5rem 0 0 -0.6rem;
+  padding: 0;
+  list-style: none;
+}
+.x-signal .sg-icons a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  color: var(--fg);
+  text-decoration: none;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease;
+}
+.x-signal .sg-icons svg {
+  width: 1.625rem;
+  height: 1.625rem;
+  fill: currentColor;
+}
+.x-signal .sg-icons a:hover,
+.x-signal .sg-icons a:focus-visible {
+  background: color-mix(in srgb, var(--fg) 12%, transparent);
+  color: var(--gold);
+}
+.x-signal .sg-icons a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+/* The link's name, shown under the icon on hover or keyboard focus. */
+.x-signal .sg-icons a::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 50%;
+  translate: -50% 0;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--fg) 14%, transparent);
+  color: var(--fg);
+  font-style: italic;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+.x-signal .sg-icons a:hover::after,
+.x-signal .sg-icons a:focus-visible::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .x-signal .sg-icons a,
+  .x-signal .sg-icons a::after {
+    transition: none;
+  }
+}
+
+/* --- Phones --------------------------------------------------------------- */
+
+/* The page is not built for a phone yet: a plain white page that says so. */
+.sg-phone {
+  min-height: 100svh;
+  padding: 1.5rem;
+  background: #fff;
+  color: #000;
+  font: 1rem/1.5 system-ui, sans-serif;
+}

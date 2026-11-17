@@ -1,0 +1,563 @@
+/* Signal. One family (Gentium Book Plus), ten colours, everything scoped
+   under .x-signal. The canvas is fixed behind the document; the document is
+   ordinary flow. */
+
+html[data-lab="signal"] {
+  background: #f2f4f6;
+  scrollbar-width: thin;
+  scrollbar-color: #c8ced6 transparent;
+}
+html[data-lab="signal"] body {
+  margin: 0;
+  background: #f2f4f6;
+  overflow-x: clip;
+}
+html[data-lab="signal"][data-signal-night],
+html[data-lab="signal"][data-signal-night] body {
+  background: #06142e;
+  scrollbar-color: rgb(238 242 248 / 0.28) transparent;
+}
+
+.x-signal {
+  --paper: #f2f4f6;
+  --ink: #14171c;
+  --graphite: #5a6472;
+  --hairline: #c8ced6;
+  --blue: #1f47e6;
+  --gold: #f2a900;
+
+  --fg: var(--ink);
+  --fg-soft: var(--graphite);
+  --rule: var(--hairline);
+  --link: var(--blue);
+  --flip: 0.45s ease;
+
+  --margin: max(7vw, 7.5rem);
+  --col: min(24em, 36vw);
+  /* The figure's own proportions: its length over its width. */
+  --figure: 70.4 / 16.51;
+
+  position: relative;
+  color: var(--fg);
+  font-family: "Gentium Book Plus", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.25rem, 0.5vw + 0.8rem, 1.5rem);
+  line-height: 1.55;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: color var(--flip);
+}
+.x-signal[data-night="true"] {
+  --fg: #eef2f8;
+  --fg-soft: rgb(238 242 248 / 0.68);
+  --rule: rgb(238 242 248 / 0.22);
+  --link: #7fa2ff;
+}
+
+.x-signal *,
+.x-signal *::before,
+.x-signal *::after {
+  box-sizing: border-box;
+}
+
+/* --- The canvas ----------------------------------------------------------- */
+
+.x-signal .sg-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.x-signal[data-ready="true"] .sg-stage {
+  opacity: 1;
+}
+.x-signal .sg-stage canvas {
+  display: block;
+}
+
+/* --- Type ----------------------------------------------------------------- */
+
+.x-signal h1,
+.x-signal h2,
+.x-signal h3,
+.x-signal p,
+.x-signal ul,
+.x-signal ol {
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+}
+.x-signal ul,
+.x-signal ol {
+  list-style: none;
+}
+.x-signal strong {
+  font-weight: 700;
+}
+
+.x-signal a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  transition:
+    color var(--flip),
+    text-decoration-color 0.2s ease;
+}
+.x-signal a:hover {
+  text-decoration-color: currentColor;
+}
+.x-signal a:focus-visible,
+.x-signal [tabindex="-1"]:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 5px;
+  border-radius: 2px;
+}
+.x-signal [tabindex="-1"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.x-signal .sg-name {
+  font-style: italic;
+  font-size: clamp(3.75rem, 9.4vw, 10.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+.x-signal .sg-h2 {
+  margin-bottom: 0.5em;
+  font-style: italic;
+  font-size: clamp(2.75rem, 5.2vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.x-signal .sg-h3 {
+  margin-bottom: 0.9rem;
+  font-size: clamp(1.45rem, 2vw, 1.85rem);
+  line-height: 1.24;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+.x-signal .sg-title {
+  margin-bottom: 0.85rem;
+  font-style: italic;
+  font-size: clamp(2.6rem, 4.6vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.x-signal .sg-body {
+  text-wrap: pretty;
+  hanging-punctuation: first;
+}
+.x-signal .sg-meta,
+.x-signal .sg-tags {
+  color: var(--fg-soft);
+  transition: color var(--flip);
+}
+.x-signal .sg-meta {
+  margin-bottom: 0.55rem;
+  font-style: italic;
+  font-size: 1.0625rem;
+}
+.x-signal .sg-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1.35rem;
+  font-size: 1.0625rem;
+}
+.x-signal .sg-tags li + li::before {
+  content: "·";
+  margin: 0 0.6em;
+}
+.x-signal .sg-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.7rem;
+  margin-top: 1.25rem;
+  font-size: 1.0625rem;
+}
+.x-signal .sg-out {
+  display: inline-block;
+  margin-left: 0.35em;
+}
+/* A word before it is read. The controller raises this as it is lit. */
+.x-signal[data-live] .sg-w {
+  opacity: 0.24;
+}
+
+/* --- Opening and closing plates ------------------------------------------- */
+
+.x-signal .sg-hero,
+.x-signal .sg-end {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  min-height: 36rem;
+  padding: clamp(4.75rem, 10.5svh, 6.75rem) var(--margin) clamp(1.5rem, 4svh, 2.5rem);
+}
+.x-signal .sg-plate {
+  margin-block: auto;
+  padding-block: 1rem 2.5rem;
+}
+/* Nothing is drawn here: this is the hole the canvas figure is framed into.
+   --sg-fig is the figure's width once its strokes are snapped to the pixel
+   grid (set by the controller); without it, the full measure. */
+.x-signal .sg-slot {
+  width: var(--sg-fig, 100%);
+  max-width: 100%;
+  aspect-ratio: var(--figure);
+  max-height: 44svh;
+}
+/* The opening figure and the note at its corner. The figure itself is drawn
+   by the canvas; this box is where it is. --sg-inset is how far the figure
+   stops short of the box's sides when the box is too low to hold it at full
+   width (set by the controller). */
+.x-signal .sg-figure {
+  position: relative;
+  width: var(--sg-fig, 100%);
+  max-width: 100%;
+}
+.x-signal .sg-figure .sg-slot {
+  width: 100%;
+}
+.x-signal .sg-note {
+  position: absolute;
+  right: var(--sg-inset, 0px);
+  bottom: calc(100% + 0.55rem);
+}
+.x-signal .sg-info {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid var(--fg-soft);
+  border-radius: 50%;
+  background: none;
+  color: var(--fg-soft);
+  font: italic 1rem/1 "Gentium Book Plus", Georgia, serif;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.x-signal .sg-info span {
+  transform: translateY(-0.03em);
+}
+.x-signal .sg-info:hover,
+.x-signal .sg-info[aria-expanded="true"] {
+  border-color: var(--fg);
+  color: var(--fg);
+}
+.x-signal .sg-info:focus-visible,
+.x-signal .sg-play:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 4px;
+}
+.x-signal .sg-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.6rem);
+  width: min(19rem, 100vw - 5rem);
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--fg-soft);
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+.x-signal .sg-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.7rem;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  cursor: pointer;
+}
+.x-signal .sg-play:hover {
+  text-decoration-color: currentColor;
+}
+.x-signal .sg-play svg {
+  fill: currentColor;
+}
+.x-signal .sg-cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1rem, 3svh, 2rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  transform: translateX(-50%);
+  color: var(--fg-soft);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1;
+}
+.x-signal .sg-cue i {
+  display: block;
+  width: 1px;
+  height: 3.25rem;
+  background: currentColor;
+  transform-origin: top;
+  animation: sg-cue 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes sg-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+.x-signal .sg-contact {
+  position: relative;
+  z-index: 1;
+  height: 175svh;
+}
+/* The closing plate pins while the camera finishes its climb, then appears. */
+.x-signal .sg-end {
+  position: sticky;
+  top: 0;
+  opacity: 0;
+}
+
+/* --- Chapters ------------------------------------------------------------- */
+
+.x-signal .sg-open {
+  position: relative;
+  z-index: 1;
+  height: 188svh;
+}
+.x-signal .sg-open .sg-hero {
+  position: sticky;
+  top: 0;
+}
+/* Where the second unit of the story begins: one screen down the opening. */
+.x-signal .sg-mark {
+  position: absolute;
+  top: 100svh;
+  width: 1px;
+  height: 1px;
+}
+.x-signal .sg-gap {
+  position: relative;
+  z-index: 1;
+}
+.x-signal .sg-gap--night {
+  height: 80svh;
+}
+.x-signal .sg-chapter {
+  position: relative;
+  z-index: 1;
+  padding-inline: var(--margin);
+}
+.x-signal .sg-col {
+  width: var(--col);
+  max-width: 100%;
+}
+.x-signal .sg-about {
+  min-height: 160svh;
+  padding-top: 26svh;
+}
+.x-signal .sg-about .sg-body + .sg-body {
+  margin-top: 11svh;
+}
+/* The top padding keeps the first line off screen until the kaleidoscope has
+   finished coming in. The bottom padding is the empty stretch where night
+   falls, between the last paper leaving and the Projects heading coming in:
+   no text is ever caught on the wrong side of a blot's edge. */
+.x-signal .sg-research {
+  min-height: 176svh;
+  padding-top: 40svh;
+  padding-bottom: 180svh;
+}
+.x-signal .sg-paper + .sg-paper,
+.x-signal .sg-paper + .sg-hold {
+  margin-top: 18svh;
+}
+/* The second paper is held in the column for one screen of scroll while the
+   tower beside it plays out. --sg-pin is the height it sticks at (set by the
+   controller, which also takes the hold into account when it lights and
+   fades the text). */
+.x-signal .sg-hold::after {
+  content: "";
+  display: block;
+  height: 100svh;
+}
+.x-signal .sg-hold .sg-paper {
+  position: sticky;
+  top: var(--sg-pin, 24svh);
+}
+.x-signal .sg-projects-head {
+  padding-top: 4svh;
+}
+.x-signal .sg-project {
+  min-height: 130svh;
+  padding-top: 10svh;
+}
+
+/* --- Chapter list --------------------------------------------------------- */
+
+.x-signal .sg-nav {
+  --row: 1.85rem;
+  position: fixed;
+  z-index: 5;
+  left: 1.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.x-signal .sg-nav ol {
+  position: relative;
+  padding-left: 0.85rem;
+}
+.x-signal .sg-nav li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--row);
+}
+/* The rule is drawn a label at a time: each stretch takes its label's colours,
+   which follow the sheet behind it as night crosses the list. */
+.x-signal .sg-nav li::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -0.85rem;
+  width: 1px;
+  background: var(--rule);
+}
+/* The marker always sits beside the current chapter's label. Within that row
+   it moves from top to bottom as the chapter is read; at a chapter change it
+   steps exactly its own height into the next row. */
+.x-signal .sg-nav ol::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 3px;
+  height: calc(var(--row) * 0.6);
+  background: var(--link);
+  transform: translateY(calc(var(--sg-at, 0) * var(--row)));
+  transition: background-color var(--flip);
+}
+.x-signal .sg-nav a {
+  padding: 0.35rem 0.3rem;
+  color: var(--fg-soft);
+  text-decoration: none;
+  text-shadow:
+    0 0 0.5em var(--halo, transparent),
+    0 0 0.22em var(--halo, transparent);
+  transition: color 0.25s ease;
+}
+.x-signal .sg-nav a:hover,
+.x-signal .sg-nav a[aria-current] {
+  color: var(--fg);
+}
+
+/* --- Narrow or tall screens: the text sits under the picture -------------- */
+
+@media (max-width: 760px), (max-aspect-ratio: 9/10) {
+  .x-signal {
+    --margin: 1.4rem;
+    --col: 100%;
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+  .x-signal .sg-chapter {
+    padding-left: 2.6rem;
+  }
+  .x-signal .sg-hero,
+  .x-signal .sg-end {
+    padding-top: 5.25rem;
+    padding-left: 2.6rem;
+  }
+  /* The opening figure runs off both edges; this keeps the room for it. */
+  .x-signal .sg-hero .sg-figure {
+    width: 100%;
+  }
+  .x-signal .sg-hero .sg-slot {
+    aspect-ratio: auto;
+    height: 38vw;
+  }
+  .x-signal .sg-about .sg-body + .sg-body {
+    margin-top: 9svh;
+  }
+  /* Text only has the lower half of the screen here, so each project needs
+     less scroll before the next one arrives. */
+  .x-signal .sg-project {
+    min-height: 110svh;
+  }
+  .x-signal .sg-nav {
+    --row: 1.75rem;
+    left: 0.7rem;
+  }
+  .x-signal .sg-nav ol {
+    padding-left: 0;
+  }
+  .x-signal .sg-nav li::before {
+    left: 0;
+  }
+  .x-signal .sg-nav a {
+    display: block;
+    width: 1.5rem;
+    height: var(--row);
+    padding: 0;
+  }
+  /* Labels stay for assistive tech; on screen the list is ticks on a rule. */
+  .x-signal .sg-nav a span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .x-signal .sg-nav a::before {
+    content: "";
+    display: block;
+    width: 0.45rem;
+    height: 1px;
+    margin-top: calc(var(--row) / 2);
+    background: var(--fg-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-signal .sg-cue i {
+    animation: none;
+  }
+  .x-signal .sg-stage {
+    transition: none;
+  }
+}

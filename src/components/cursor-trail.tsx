@@ -145,7 +145,12 @@ export function CursorTrail() {
           const a = s.pts[j]
           const b = s.pts[j + 1]
           const life = 1 - j / (s.pts.length - 1)
-          const fade = Math.pow(life, 1.7) * intensity
+          // Fast drags stretch the segments long, and additive round caps turn
+          // their joints into a chain of bright dots — so long segments go
+          // faint, reading as motion blur instead of beads.
+          const segLen = Math.hypot(a.x - b.x, a.y - b.y)
+          const speedDim = Math.min(1, 16 / (segLen + 8))
+          const fade = Math.pow(life, 1.7) * intensity * speedDim
 
           // soft wide pass — the haze around the strand
           ctx.strokeStyle = dark

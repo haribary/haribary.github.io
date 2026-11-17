@@ -8,7 +8,7 @@ import {
   User,
 } from "lucide-react"
 
-import { Card, Kicker, Prose, Stat } from "@/components/panel-bits"
+import { Card, Prose } from "@/components/panel-bits"
 import { CoverflowCarousel } from "@/components/ui/coverflow-carousel"
 
 function A({ href, children }: { href: string; children: React.ReactNode }) {
@@ -91,7 +91,6 @@ export const sections: Section[] = [
     icon: FolderGit2,
     body: () => (
       <div className="flex h-full flex-col">
-        <Kicker>Selected work</Kicker>
         <div className="grid flex-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           <Card
             title="Vigil AI"
@@ -136,9 +135,6 @@ export const sections: Section[] = [
             real-time greenwashing detection over web search.
           </Card>
         </div>
-        <p className="mt-6 font-mono text-[0.7rem] tracking-wide text-muted">
-          + more in the pipeline — this grid grows.
-        </p>
       </div>
     ),
   },
@@ -148,44 +144,26 @@ export const sections: Section[] = [
     tagline: "BAIR · Berkeley Speech Group",
     icon: FlaskConical,
     body: () => (
-      <div className="grid h-full gap-8 lg:grid-cols-[1fr_1.5fr]">
-        <div className="flex flex-col">
-          <Kicker>Current work</Kicker>
-          <Prose>
-            <p>
-              I'm a researcher at <strong>BAIR</strong> with the Berkeley Speech Group,
-              advised by Prof. Gopala Anumanchipalli. My work focuses on{" "}
-              <strong>dynamic agents for speech-language disorder screening</strong>, in
-              partnership with UCSF.
-            </p>
-          </Prose>
-          <div className="mt-6 space-y-3">
-            <Stat k="Advisor" v="Gopala Anumanchipalli" />
-            <Stat k="Partner" v="UCSF Memory & Aging Center" />
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <Kicker>Publications</Kicker>
-          <div className="flex flex-1 flex-col gap-4 [&>*]:flex-1">
-            <Card
-              title="HASS: Hierarchical Simulation of Logopenic Aphasic Speech for Scalable PPA Detection"
-              meta="Preprint 2025 · Project lead"
-              links={[{ label: "arXiv", href: "https://arxiv.org/abs/2603.26795" }]}
-            >
-              A clinically grounded simulation framework for lvPPA that systematically
-              models semantic, phonological, and temporal deficits at varying severity,
-              sidestepping the data scarcity that limits clinical speech models.
-            </Card>
-            <Card
-              title="Limits of Emergent Reasoning of LLMs in Agentic Frameworks for Deterministic Games"
-              meta="FoRLM @ NeurIPS 2025"
-              links={[{ label: "arXiv", href: "https://arxiv.org/abs/2510.15974" }]}
-            >
-              Giving LLMs a real environment interface for Tower of Hanoi doesn't delay
-              performance collapse. Policy analysis shows growing divergence from both
-              optimal and random play — mode-like collapse rather than reasoning.
-            </Card>
-          </div>
+      <div className="flex h-full flex-col">
+        <div className="grid flex-1 gap-4 lg:grid-cols-2">
+          <Card
+            title="HASS: Hierarchical Simulation of Logopenic Aphasic Speech for Scalable PPA Detection"
+            meta="Interspeech 2026"
+            links={[{ label: "arXiv", href: "https://arxiv.org/abs/2603.26795" }]}
+          >
+            A clinically grounded simulation framework for lvPPA that systematically
+            models semantic, phonological, and temporal deficits at varying severity,
+            sidestepping the data scarcity that limits clinical speech models.
+          </Card>
+          <Card
+            title="Limits of Emergent Reasoning of LLMs in Agentic Frameworks for Deterministic Games"
+            meta="FoRLM @ NeurIPS 2025"
+            links={[{ label: "arXiv", href: "https://arxiv.org/abs/2510.15974" }]}
+          >
+            Giving LLMs a real environment interface for Tower of Hanoi doesn't delay
+            performance collapse. Policy analysis shows growing divergence from both
+            optimal and random play — mode-like collapse rather than reasoning.
+          </Card>
         </div>
       </div>
     ),
@@ -198,18 +176,11 @@ export const sections: Section[] = [
     body: () => (
       <div className="grid h-full gap-8 md:grid-cols-2">
         <div className="flex flex-col">
-          <Kicker>Resume</Kicker>
-          <Prose>
-            <p>
-              The one-page version, kept current. Happy to send a longer CV with full
-              publication and coursework detail on request.
-            </p>
-          </Prose>
           <a
             href="/files/Resume.pdf"
             target="_blank"
             rel="noreferrer"
-            className="group mt-5 inline-flex w-fit items-center gap-2.5 rounded-md bg-accent px-5 py-3 font-mono text-xs tracking-widest text-white uppercase transition-all duration-200 hover:brightness-115 active:scale-[0.98] dark:text-background"
+            className="group inline-flex w-fit items-center gap-2.5 rounded-md bg-accent px-5 py-3 font-mono text-xs tracking-widest text-white uppercase transition-all duration-200 hover:brightness-115 active:scale-[0.98] dark:text-background"
           >
             <FileDown className="size-4 transition-transform duration-200 group-hover:translate-y-0.5" />
             Download PDF
@@ -223,14 +194,7 @@ export const sections: Section[] = [
           </div>
         </div>
         <div className="flex flex-col">
-          <Kicker>Get in touch</Kicker>
-          <Prose>
-            <p>
-              Reach out about research, collaborations, or opportunities — email is the
-              fastest path to me.
-            </p>
-          </Prose>
-          <ul className="mt-5 divide-y divide-line overflow-hidden rounded-md border border-line">
+          <ul className="divide-y divide-line overflow-hidden rounded-md border border-line">
             {[
               { k: "Email", v: "liharrison@berkeley.edu", href: "mailto:liharrison@berkeley.edu" },
               { k: "GitHub", v: "github.com/haribary", href: "https://github.com/haribary" },
@@ -253,16 +217,6 @@ export const sections: Section[] = [
               </li>
             ))}
           </ul>
-
-          <div className="mt-auto pt-8">
-            <div className="rounded-md border border-line bg-surface-2/40 p-5">
-              <p className="label-caps text-muted">Currently</p>
-              <p className="mt-2 font-serif text-[0.975rem]/[1.7] text-foreground/85">
-                Open to research collaborations and summer 2027 internships in agentic
-                systems, RL, or speech.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     ),

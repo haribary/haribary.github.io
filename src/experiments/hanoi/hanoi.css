@@ -1,0 +1,669 @@
+/* Hanoi: a bright studio, one family (Rubik), five acrylic hues. */
+
+html[data-lab="hanoi"] {
+  background: #ecedef;
+}
+html[data-lab="hanoi"] body {
+  background: #ecedef;
+  color: #111318;
+  margin: 0;
+}
+
+.x-hanoi {
+  --dark: 0;
+  --accent: #111318;
+  --pct: calc(var(--dark) * 100%);
+  --bg: color-mix(in oklab, #ecedef, #0a0b0e var(--pct));
+  --ink: color-mix(in oklab, #111318, #eceef2 var(--pct));
+  --mid: color-mix(in oklab, #6b7280, #8f96a3 var(--pct));
+  --hair: color-mix(in oklab, #d5d8dd, #262a33 var(--pct));
+  --glass: color-mix(in oklab, var(--bg) 72%, transparent);
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Rubik Variable", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.x-hanoi ::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+.x-hanoi .hz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus: an ink ring with the accent colour inside it. */
+.x-hanoi a:focus-visible,
+.x-hanoi button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--accent);
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------ stage */
+
+.x-hanoi .hz-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.x-hanoi .hz-stage canvas {
+  display: block;
+}
+.x-hanoi .hz-stage__fade {
+  display: none;
+}
+
+.x-hanoi main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ------------------------------------------------------------ header */
+
+.x-hanoi .hz-veil {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 96px;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(var(--bg) 40%, color-mix(in oklab, var(--bg) 0%, transparent));
+}
+
+.x-hanoi .hz-top {
+  position: fixed;
+  top: 18px;
+  left: 28px;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  font-size: 14px;
+  line-height: 1;
+}
+.x-hanoi .hz-top a {
+  color: var(--ink);
+  text-decoration: none;
+  padding: 6px 0;
+}
+.x-hanoi .hz-top__name {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.x-hanoi .hz-top__nav {
+  display: flex;
+  gap: 18px;
+}
+.x-hanoi .hz-top__nav a {
+  color: var(--mid);
+  transition: color 0.2s ease;
+}
+.x-hanoi .hz-top__nav a:hover {
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------ readout */
+
+.x-hanoi .hz-readout {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px 7px 11px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid color-mix(in oklab, var(--hair) 80%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  will-change: transform;
+}
+.x-hanoi .hz-readout[data-hidden="true"] {
+  opacity: 0;
+}
+.x-hanoi .hz-readout__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.x-hanoi .hz-readout__count {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28em;
+}
+.x-hanoi .hz-readout__detail {
+  color: var(--mid);
+}
+
+/* ------------------------------------------------------------ hero */
+
+.x-hanoi .hz-hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+}
+.x-hanoi .hz-hero__foot {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.x-hanoi .hz-hero__role {
+  margin: 0;
+  font-weight: 500;
+  max-width: 26ch;
+}
+.x-hanoi .hz-hero__hint {
+  margin: 0;
+  color: var(--mid);
+  max-width: 30ch;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------ sections */
+
+.x-hanoi .hz-sec {
+  position: relative;
+  min-height: 150vh;
+  padding: 34vh 0 26vh;
+  box-sizing: border-box;
+}
+.x-hanoi .hz-sec--contact {
+  min-height: 140vh;
+}
+.x-hanoi .hz-col {
+  box-sizing: border-box;
+}
+.x-hanoi .hz-col--r {
+  margin-left: 58vw;
+  width: min(34vw, 520px);
+}
+.x-hanoi .hz-col--l {
+  margin-left: max(7vw, 40px);
+  width: min(35vw, 540px);
+}
+
+.x-hanoi p {
+  margin: 0;
+}
+.x-hanoi .hz-lede {
+  font-size: clamp(24px, 2.1vw, 32px);
+  line-height: 1.24;
+  font-weight: 450;
+  letter-spacing: -0.018em;
+  margin-bottom: 1.1em;
+  text-wrap: pretty;
+}
+.x-hanoi .hz-body {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 1em;
+  text-wrap: pretty;
+}
+.x-hanoi .hz-lede strong,
+.x-hanoi .hz-body strong {
+  font-weight: 600;
+}
+.x-hanoi [data-lit] a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.3s ease;
+}
+.x-hanoi .hz-w {
+  will-change: opacity;
+}
+
+.x-hanoi .hz-tags {
+  list-style: none;
+  padding: 0;
+  margin: 2em 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.x-hanoi .hz-tags li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1;
+  padding: 9px 13px 9px 11px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: var(--glass);
+}
+.x-hanoi .hz-tags li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+/* papers */
+.x-hanoi .hz-paper {
+  padding-top: 26px;
+  border-top: 1px solid var(--hair);
+  margin-bottom: 64px;
+}
+.x-hanoi .hz-paper__venue {
+  font-size: 14px;
+  color: var(--mid);
+  margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.x-hanoi .hz-paper__title {
+  font-size: clamp(22px, 1.8vw, 28px);
+  line-height: 1.16;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  text-wrap: balance;
+}
+.x-hanoi .hz-note {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 14px 16px;
+  margin: 4px 0 18px;
+  border-radius: 10px;
+  background: var(--glass);
+  border: 1px solid var(--hair);
+}
+.x-hanoi .hz-note__mark {
+  flex: none;
+  width: 22px;
+  height: 18px;
+  margin-top: 2px;
+  background:
+    linear-gradient(#ff4b33, #ff4b33) 50% 0 / 8px 4px no-repeat,
+    linear-gradient(#ffb000, #ffb000) 50% 7px / 14px 4px no-repeat,
+    linear-gradient(#17b26a, #17b26a) 50% 14px / 22px 4px no-repeat;
+}
+.x-hanoi .hz-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  font-size: 15px;
+}
+.x-hanoi .hz-link {
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: text-decoration-color 0.3s ease;
+}
+.x-hanoi .hz-link:hover {
+  text-decoration-thickness: 3px;
+}
+.x-hanoi .hz-arrow {
+  opacity: 0.6;
+}
+
+/* projects */
+.x-hanoi .hz-project {
+  margin-bottom: 88px;
+}
+.x-hanoi .hz-project img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--hair);
+  background: var(--hair);
+  margin-bottom: 22px;
+}
+.x-hanoi .hz-project__title {
+  font-size: clamp(26px, 2.2vw, 34px);
+  line-height: 1.05;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  margin: 0 0 8px;
+}
+.x-hanoi .hz-project__tags {
+  font-size: 14px;
+  color: var(--mid);
+  margin-bottom: 14px;
+}
+
+/* contact */
+.x-hanoi .hz-contacts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--hair);
+}
+.x-hanoi .hz-contacts li {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: baseline;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.x-hanoi .hz-contacts__label {
+  font-size: 14px;
+  color: var(--mid);
+}
+.x-hanoi .hz-contacts .hz-link {
+  font-size: clamp(18px, 1.5vw, 22px);
+  letter-spacing: -0.01em;
+}
+
+/* ------------------------------------------------------------ play */
+
+.x-hanoi .hz-playsec {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+}
+.x-hanoi .hz-pegs {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.x-hanoi .hz-peg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.4s ease, border-color 0.2s ease, background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.x-hanoi .hz-pegs[data-active="true"] .hz-peg {
+  opacity: 1;
+  pointer-events: auto;
+}
+.x-hanoi .hz-peg:focus-visible {
+  opacity: 1;
+  border-radius: 20px;
+}
+.x-hanoi .hz-peg::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 22px;
+  height: 3px;
+  margin-left: -11px;
+  border-radius: 2px;
+  background: var(--ink);
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition: opacity 0.2s ease, transform 0.25s ease, background-color 0.3s ease;
+}
+.x-hanoi .hz-peg:hover::after {
+  opacity: 0.35;
+  transform: scaleX(1);
+}
+.x-hanoi .hz-peg[data-held="true"]::after {
+  background: var(--accent);
+  opacity: 1;
+  transform: scaleX(1.6);
+}
+.x-hanoi .hz-peg__name {
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: var(--mid);
+  font-weight: 500;
+}
+
+.x-hanoi .hz-play__bar {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 40px;
+  align-items: end;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.x-hanoi .hz-play__rules {
+  max-width: 40ch;
+  display: grid;
+  gap: 8px;
+}
+.x-hanoi .hz-muted {
+  color: var(--mid);
+}
+.x-hanoi .hz-play__score {
+  display: flex;
+  gap: 36px;
+  text-align: center;
+}
+.x-hanoi .hz-play__score > div {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+.x-hanoi .hz-play__big {
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.x-hanoi .hz-play__label {
+  font-size: 13px;
+  color: var(--mid);
+}
+.x-hanoi .hz-play__actions {
+  display: grid;
+  justify-items: end;
+  gap: 14px;
+  text-align: right;
+}
+.x-hanoi .hz-play__message {
+  max-width: 38ch;
+  text-wrap: balance;
+  min-height: 2.9em;
+}
+.x-hanoi .hz-play__buttons {
+  display: flex;
+  gap: 10px;
+}
+.x-hanoi .hz-btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--ink) 24%, transparent);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.x-hanoi .hz-btn:hover {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+}
+.x-hanoi .hz-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.x-hanoi .hz-btn--solid {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+.x-hanoi .hz-btn--solid:hover {
+  background: color-mix(in oklab, var(--ink) 85%, var(--accent));
+}
+
+/* ------------------------------------------------------------ narrow screens */
+
+@media (max-width: 760px) {
+  .x-hanoi {
+    font-size: 17px;
+  }
+  .x-hanoi .hz-stage {
+    bottom: auto;
+    height: 42vh;
+    height: 42svh;
+    z-index: 2;
+  }
+  .x-hanoi .hz-stage__fade {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 36px;
+    background: linear-gradient(var(--bg), color-mix(in oklab, var(--bg) 0%, transparent));
+  }
+  .x-hanoi .hz-top {
+    left: 18px;
+    top: 16px;
+  }
+  .x-hanoi .hz-top__nav {
+    display: none;
+  }
+  .x-hanoi .hz-readout {
+    font-size: 12px;
+    padding: 6px 11px 6px 9px;
+    gap: 8px;
+  }
+  .x-hanoi .hz-readout__detail {
+    max-width: 52vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .x-hanoi .hz-hero__foot {
+    left: 20px;
+    right: 20px;
+    top: 50svh;
+    /* Role sits under the tower band, the hint at the foot of the first
+       screen, so the opening spans the screen instead of leaving its lower
+       third empty. */
+    bottom: 30px;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 15px;
+  }
+  .x-hanoi .hz-hero__role {
+    font-size: clamp(28px, 9.4vw, 42px);
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    max-width: 13ch;
+  }
+  .x-hanoi .hz-hero__hint {
+    text-align: left;
+  }
+  .x-hanoi .hz-sec,
+  .x-hanoi .hz-sec--contact {
+    min-height: 0;
+    padding: 58svh 0 12svh;
+  }
+  .x-hanoi .hz-col--r,
+  .x-hanoi .hz-col--l {
+    margin: 0;
+    width: auto;
+    padding: 0 20px;
+  }
+  .x-hanoi .hz-body {
+    font-size: 17px;
+  }
+  .x-hanoi .hz-project {
+    margin-bottom: 64px;
+  }
+  .x-hanoi .hz-contacts li {
+    grid-template-columns: 76px 1fr;
+  }
+  .x-hanoi .hz-play__bar {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    font-size: 14px;
+  }
+  .x-hanoi .hz-play__score {
+    justify-content: flex-start;
+    text-align: left;
+    order: -1;
+  }
+  .x-hanoi .hz-play__score > div {
+    justify-items: start;
+  }
+  .x-hanoi .hz-play__big {
+    font-size: 34px;
+  }
+  .x-hanoi .hz-play__actions {
+    justify-items: start;
+    text-align: left;
+  }
+  .x-hanoi .hz-peg__name {
+    bottom: -24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-hanoi * {
+    transition-duration: 0.01ms !important;
+  }
+}

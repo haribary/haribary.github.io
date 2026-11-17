@@ -25,3 +25,6 @@ dist-ssr
 
 # local claude config
 .claude/
+
+# python
+__pycache__/
