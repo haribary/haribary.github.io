@@ -1,0 +1,351 @@
+/* Sloprillion. The page is the road: the scene's tarmac runs down into the UI,
+   prompts sit on a billboard, and controls borrow from US highway signs. */
+
+:root {
+  --road: #2a2c38;      /* keep in step with ROAD_COL in src/scene.js */
+  --road-deep: #1c1d26;
+  --road-lift: #3b3e4f;
+  --ink: #14151c;
+  --face: #f4f6fb;
+  --dim: #aab0c2;
+  --sign: #0c6b4b;
+  --sign-deep: #074a34;
+  --lane: #ffc93c;
+  --stop: #ff5a4d;
+  --crowd: #2a9d6f;     /* the distribution curve; checked against --road for contrast */
+
+  --t1: #a9ad92;
+  --t2: #e2bb78;
+  --t3: #56c8ec;
+  --t4: #a493ff;
+  --t5: #ff86cf;
+  --t6: #ffc93c;
+
+  --u: 4px; /* one "pixel" of UI chrome */
+  --display: "Jersey 10", ui-monospace, monospace;
+  --ui: "Overpass", ui-sans-serif, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  background: var(--road);
+  color: #fff;
+  font: 500 16px/1.4 var(--ui);
+  -webkit-tap-highlight-color: transparent;
+}
+button, input { font: inherit; color: inherit; }
+ul, ol { list-style: none; padding: 0; }
+
+/* Stepped pixel border: four hard shadows leave the corners notched. An
+   optional fifth makes the keycap lip under buttons and signs. */
+.board-face, .btn, .sign, .field, .runway, .tiers li, .recap .pts, .scale-bar {
+  box-shadow:
+    0 calc(var(--u) * -1) 0 0 var(--b),
+    0 var(--u) 0 0 var(--b),
+    calc(var(--u) * -1) 0 0 0 var(--b),
+    var(--u) 0 0 0 var(--b),
+    0 calc(var(--u) * 2) 0 0 var(--lip, transparent);
+}
+
+#app { min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* ------------------------------------------------------------------ scene */
+.scene {
+  position: relative;
+  flex: none;
+  height: var(--scene-h);
+  overflow: hidden;
+  background: #4a9be0;
+}
+#app[data-screen="intro"] .scene { --scene-h: clamp(320px, 56dvh, 640px); }
+#app[data-screen="game"] .scene { --scene-h: clamp(210px, 36dvh, 400px); }
+#app[data-screen="final"] .scene { --scene-h: clamp(190px, 28dvh, 320px); }
+#scene { position: absolute; left: 0; bottom: 0; display: block; image-rendering: pixelated; }
+
+.hero {
+  display: none;
+  position: absolute;
+  inset: clamp(18px, 6dvh, 56px) 0 auto;
+  padding: 0 16px;
+  text-align: center;
+}
+#app[data-screen="intro"] .hero { display: block; }
+.wordmark { line-height: 0; }
+#wordmark { width: min(100%, 648px); height: auto; image-rendering: pixelated; }
+.tagline {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 2px 12px 4px;
+  background: var(--ink);
+  font: 400 clamp(24px, 6vw, 34px)/1 var(--display);
+  letter-spacing: 0.02em;
+}
+
+.hud {
+  display: none;
+  position: absolute;
+  inset: calc(14px + env(safe-area-inset-top)) 0 auto;
+  width: min(100%, 632px);
+  margin: 0 auto;
+  padding: 0 20px;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+#app[data-screen="game"] .hud { display: flex; }
+.sign {
+  --b: #fff;
+  --lip: var(--sign-deep);
+  background: var(--sign);
+  padding: 4px 12px 8px;
+}
+.sign-k { display: block; font-size: 13px; font-weight: 600; opacity: 0.92; }
+.sign-v { display: block; font: 400 38px/0.78 var(--display); letter-spacing: 0.02em; white-space: nowrap; }
+.sign-val { text-align: right; min-width: 124px; }
+.pips { display: flex; gap: 3px; margin-top: 8px; }
+.pips i { width: 10px; height: 10px; background: rgba(255, 255, 255, 0.28); }
+.pips i.cur { background: #fff; }
+
+.pop {
+  position: absolute;
+  left: 50%;
+  bottom: 34%;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  font: 400 64px/0.9 var(--display);
+  color: var(--tier, #fff);
+  text-shadow: 4px 0 0 var(--ink), -4px 0 0 var(--ink), 0 4px 0 var(--ink), 0 -4px 0 var(--ink), 4px 4px 0 var(--ink), -4px 4px 0 var(--ink), 4px -4px 0 var(--ink), -4px -4px 0 var(--ink), 0 8px 0 var(--ink);
+}
+.pop.go { animation: pop 1.5s steps(14) forwards; }
+@keyframes pop {
+  0% { opacity: 0; transform: translate(-50%, 24px); }
+  14% { opacity: 1; transform: translate(-50%, 0); }
+  70% { opacity: 1; transform: translate(-50%, -16px); }
+  100% { opacity: 0; transform: translate(-50%, -40px); }
+}
+
+/* ------------------------------------------------------------------- deck */
+.deck { flex: 1; width: min(100%, 632px); margin: 0 auto; padding: 0 20px calc(40px + env(safe-area-inset-bottom)); }
+.screen { display: none; }
+#app[data-screen="intro"] #intro,
+#app[data-screen="game"] #game,
+#app[data-screen="final"] #final { display: block; }
+
+/* The billboard */
+.board { position: relative; z-index: 2; margin: -22px var(--u) 0; }
+.board-face {
+  --b: var(--ink);
+  position: relative;
+  background: var(--tier, var(--face));
+  color: var(--ink);
+  padding: 16px 18px 18px;
+  text-align: center;
+}
+.lamps { position: absolute; inset: -20px 0 auto; display: flex; justify-content: space-evenly; pointer-events: none; }
+.lamps i { position: relative; width: 24px; height: 4px; background: var(--ink); }
+.lamps i::before { content: ""; position: absolute; left: 10px; top: 4px; width: 4px; height: 12px; background: var(--ink); }
+.lamps i::after { content: ""; position: absolute; left: 4px; top: 4px; width: 16px; height: 4px; background: var(--lane); }
+.posts { display: flex; justify-content: space-between; height: 18px; margin-top: var(--u); padding: 0 16%; }
+.posts i { width: 12px; background: var(--ink); box-shadow: inset 4px 0 0 var(--road-lift); }
+
+.cat { font-size: 14px; font-weight: 700; color: #4a5066; }
+.ask { font: 400 26px/1 var(--display); margin-top: 6px; }
+.prompt {
+  margin-top: 2px;
+  font: 400 clamp(40px, 10.5vw, 58px)/0.86 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+.note { margin-top: 10px; font-size: 15px; line-height: 1.3; color: #4a5066; text-wrap: balance; }
+
+/* The verdict takes over the billboard, flooded in the tier's colour */
+.verdict { display: flex; align-items: center; gap: 14px; text-align: left; }
+.verdict .icon { flex: none; width: 48px; height: 48px; image-rendering: pixelated; }
+.verdict-main { flex: 1; min-width: 0; }
+.verdict-tier { font: 400 clamp(34px, 9vw, 46px)/0.86 var(--display); text-transform: uppercase; }
+.verdict-ans { margin-top: 6px; font-size: 18px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.verdict-pts { flex: none; min-width: 1.35em; text-align: right; transform-origin: right center; font: 400 clamp(56px, 15vw, 76px)/0.8 var(--display); }
+
+/* The score counts up before the rest of the result is shown. Everything keeps
+   its space while hidden so nothing jumps when it lands. */
+.board-face { transition: background-color 0.16s steps(2); }
+.counting .fact { visibility: hidden; }
+.after.pending .raise, .after.pending .ends, .after.pending .btn { visibility: hidden; }
+.after:not(.pending) .raise, .after:not(.pending) .ends, .after:not(.pending) .btn { animation: appear 0.24s steps(4); }
+.verdict-pts.landed { animation: land 0.22s steps(3); }
+@keyframes appear { from { opacity: 0; transform: translateY(8px); } }
+@keyframes land { from { transform: scale(1.22); } }
+.fact { margin-top: 12px; padding-top: 10px; border-top: 4px dotted rgba(20, 21, 28, 0.35); font-size: 15px; line-height: 1.35; text-align: left; }
+
+/* Runway: the timer is a lane stripe that gets used up */
+.play { margin-top: 2px; }
+.runway { --b: var(--road-lift); position: relative; height: 20px; margin: 0 var(--u); background: var(--road-deep); overflow: hidden; }
+.runway-fill {
+  position: absolute;
+  inset: 6px auto 6px 6px;
+  width: calc((100% - 12px) * var(--left, 1));
+  background: repeating-linear-gradient(90deg, var(--lane) 0 20px, transparent 20px 28px);
+}
+.runway.low .runway-fill { background: repeating-linear-gradient(90deg, var(--stop) 0 20px, transparent 20px 28px); }
+.runway-meta { display: flex; justify-content: space-between; margin: 8px var(--u) 0; font-size: 15px; color: var(--dim); }
+.runway.low + .runway-meta #secs { color: var(--stop); }
+
+.entry { display: flex; gap: 14px; margin: 14px var(--u) 0; }
+.field {
+  --b: #fff;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: var(--road-deep);
+  cursor: text;
+}
+.field:focus-within { --b: var(--lane); }
+.caret { color: var(--lane); font-weight: 700; font-size: 20px; }
+.field input { flex: 1; min-width: 0; padding: 13px 0; background: none; border: 0; outline: 0; font-size: 20px; font-weight: 600; }
+.field input::placeholder { color: #7b8196; font-weight: 500; }
+.field.nope { --b: var(--stop); animation: nope 0.24s steps(4); }
+@keyframes nope { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.msg { min-height: 24px; margin: 14px var(--u) 0; font-size: 16px; color: var(--lane); }
+/* waiting on the server: the clock is held, so the runway simply stops */
+.field:has(input:disabled) { --b: var(--road-lift); }
+
+.btn {
+  --b: #e9ecf5;
+  --lip: var(--road-deep);
+  position: relative;
+  top: 0;
+  flex: none;
+  padding: 12px 18px;
+  border: 0;
+  background: var(--road-lift);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.btn-go { --b: #fff; --lip: var(--sign-deep); background: var(--sign); }
+.btn:hover { filter: brightness(1.12); }
+.btn:active { top: var(--u); --lip: transparent; }
+.btn:focus-visible { outline: 4px solid var(--lane); outline-offset: 8px; }
+.btn-big { display: block; width: calc(100% - var(--u) * 2); margin: 0 var(--u); padding: 16px 18px 14px; font-size: 22px; }
+
+/* After a round */
+.after { margin: 4px var(--u) 0; }
+.raise { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; font: 400 34px/1 var(--display); }
+.raise b { font-weight: 400; }
+.raise .was { color: var(--dim); }
+.raise .to { width: 20px; height: 12px; background: linear-gradient(var(--dim), var(--dim)) 0 4px / 12px 4px no-repeat, linear-gradient(var(--dim), var(--dim)) 12px 0 / 4px 12px no-repeat, linear-gradient(var(--dim), var(--dim)) 16px 4px / 4px 4px no-repeat; align-self: center; }
+.raise .mult { margin-left: auto; padding: 2px 8px 4px; background: var(--tier); color: var(--ink); }
+.raise.flat { display: block; font: 500 16px/1.4 var(--ui); color: var(--dim); }
+.raise.flat b { color: #fff; }
+
+.scale { position: relative; margin: 20px var(--u) 0; }
+.scale-bar { --b: var(--ink); display: flex; height: 16px; }
+.scale-pin { position: absolute; top: -8px; bottom: -8px; width: 8px; margin-left: -4px; background: #fff; box-shadow: 0 0 0 4px var(--ink); }
+
+.ends { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+.ends dt { font-size: 15px; color: var(--dim); }
+.ends dd { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.ends dd span { margin-left: 8px; font-weight: 500; color: var(--dim); }
+.ends div + div { text-align: right; }
+.after .btn { display: block; width: 100%; margin-top: 22px; }
+
+/* ------------------------------------------------------------------ intro */
+#intro .btn-big { margin-top: 18px; }
+#intro .board { margin-top: 44px; }
+.fine { margin: 12px var(--u) 0; font-size: 15px; line-height: 1.35; color: var(--dim); }
+.board-title { font: 400 34px/1 var(--display); text-transform: uppercase; }
+.rules { margin-top: 10px; display: grid; gap: 6px; text-align: left; font-size: 16px; line-height: 1.3; }
+.rules li { position: relative; padding-left: 20px; }
+.rules li::before { content: ""; position: absolute; left: 0; top: 7px; width: 8px; height: 8px; background: var(--ink); }
+.section-title { margin: 26px var(--u) 0; font: 400 30px/1 var(--display); }
+.tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; margin: 16px var(--u) 0; }
+.tiers li {
+  --b: var(--ink);
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 2px 10px;
+  align-items: center;
+  padding: 8px 10px 10px;
+  background: var(--tier);
+  color: var(--ink);
+}
+.tiers .icon { width: 24px; height: 24px; image-rendering: pixelated; grid-row: span 2; }
+.tiers b { font-size: 16px; font-weight: 800; line-height: 1.1; }
+.tiers span { font-size: 13px; font-weight: 600; line-height: 1.2; }
+
+/* ------------------------------------------------------------------ final */
+.final-face { padding-bottom: 20px; }
+.bigval { margin-top: 2px; font: 400 clamp(84px, 24vw, 132px)/0.8 var(--display); letter-spacing: 0.01em; }
+.klass { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 12px; margin-top: 12px; font-size: 16px; }
+.klass b { padding: 2px 10px 4px; background: var(--ink); color: #fff; font: 400 26px/1 var(--display); text-transform: uppercase; }
+/* The day's distribution. Smooth on purpose: it is data, not scenery. */
+.dist { margin: 28px var(--u) 0; }
+.dist .section-title, .dist .fine { margin-left: 0; margin-right: 0; }
+.dist .section-title { margin-top: 0; }
+.dist-plot { position: relative; height: 164px; margin-top: 12px; touch-action: pan-y; }
+.dist-plot svg { display: block; overflow: visible; }
+.dist-behind { fill: var(--crowd); fill-opacity: 0.4; }
+.dist-ahead { fill: var(--crowd); fill-opacity: 0.13; }
+.dist-line { fill: none; stroke: var(--crowd); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.dist-axis { stroke: #4b4f63; stroke-width: 1; }
+.dist-tick { fill: var(--dim); font: 500 12px var(--ui); }
+.dist-you { stroke: #fff; stroke-width: 2; }
+.dist-you-dot { fill: #fff; stroke: var(--road); stroke-width: 2; }
+.dist-chip rect { fill: #fff; }
+.dist-chip text { fill: var(--ink); font: 800 12px var(--ui); }
+.dist-cross { stroke: #8f95ab; stroke-width: 1; }
+.dist-tip {
+  position: absolute;
+  transform: translateX(-50%);
+  padding: 4px 9px 3px;
+  background: var(--ink);
+  box-shadow: 0 0 0 1px #4b4f63;
+  font-size: 13px;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.dist-tip b { display: block; font-weight: 800; font-size: 15px; }
+.dist-tip span { color: var(--dim); }
+
+.recap { display: grid; gap: 16px; margin: 28px var(--u) 0; }
+.recap li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: center; }
+.recap .pts { --b: var(--ink); padding: 4px 0 6px; background: var(--tier); color: var(--ink); text-align: center; font: 400 34px/0.9 var(--display); }
+.recap .q { font-size: 14px; line-height: 1.25; color: var(--dim); }
+.recap .a { font-size: 18px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.recap .a span { margin-left: 8px; font-size: 15px; font-weight: 500; color: var(--dim); }
+.actions { display: flex; gap: 16px; margin: 28px var(--u) 0; }
+.actions .btn { flex: 1; }
+#nextIn { text-align: center; margin-top: 20px; }
+
+/* ------------------------------------------------------------- adjustments */
+@media (min-width: 900px) and (min-height: 780px) {
+  #app[data-screen="game"] .scene { --scene-h: clamp(300px, 43dvh, 470px); }
+}
+@media (max-height: 640px) {
+  #app[data-screen="game"] .scene { --scene-h: clamp(170px, 30dvh, 400px); }
+}
+@media (max-width: 380px) {
+  .sign-v { font-size: 32px; }
+  .sign-val { min-width: 108px; }
+  .entry { gap: 12px; }
+  .btn { padding: 12px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pop.go { animation: none; opacity: 0; }
+  .field.nope { animation: none; }
+  .board-face { transition: none; }
+  .verdict-pts.landed,
+  .after:not(.pending) .raise, .after:not(.pending) .ends, .after:not(.pending) .btn { animation: none; }
+}

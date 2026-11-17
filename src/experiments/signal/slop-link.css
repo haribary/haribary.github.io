@@ -1,0 +1,107 @@
+/* The Sloprillion plate at the top right of the opening (slop-link.tsx). Its
+   colours are the game's, not this page's. Every length is a multiple of --u,
+   one pixel of the art, which the script snaps to whole device pixels. */
+
+.x-signal .sg-slop {
+  --u: 2px;
+  --frame: #14151c;
+  --lip: #3b3e4f;
+
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--u) * 12);
+  right: calc(var(--u) * 12);
+  display: block;
+  /* The picture is 94 by 21 art pixels. */
+  width: calc(var(--u) * 94);
+  height: calc(var(--u) * 21);
+  background: #2a2c38;
+  /* The game's stepped frame: four hard shadows leave the corners notched, and
+     a fifth is the lip the plate sits on, like a keycap. */
+  box-shadow:
+    0 calc(var(--u) * -1) 0 0 var(--frame),
+    0 var(--u) 0 0 var(--frame),
+    calc(var(--u) * -1) 0 0 0 var(--frame),
+    var(--u) 0 0 0 var(--frame),
+    0 calc(var(--u) * 2) 0 0 var(--lip);
+  line-height: 0;
+  text-decoration: none;
+  transition: none;
+}
+.x-signal .sg-slop:hover,
+.x-signal .sg-slop:focus-visible {
+  --lip: #58b647;
+}
+/* Pressed, the plate goes down onto its lip. */
+.x-signal .sg-slop:active {
+  --lip: transparent;
+  transform: translateY(var(--u));
+}
+.x-signal .sg-slop:focus-visible {
+  outline-offset: calc(var(--u) * 4);
+  border-radius: 0;
+}
+
+.x-signal .sg-slop canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+.x-signal .sg-slop-scene {
+  width: 100%;
+  height: 100%;
+}
+
+/* The mascot stands on the pavement to the left of the name. Its canvas holds
+   two frames, eyes open above eyes shut, and this box shows one of them. */
+.x-signal .sg-slop-blob {
+  position: absolute;
+  left: calc(var(--u) * 3);
+  top: calc(var(--u) * 5);
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 12);
+  overflow: hidden;
+}
+.x-signal .sg-slop-blob canvas {
+  width: 100%;
+  height: 200%;
+  animation: sg-slop-blink 5.6s steps(1) infinite;
+}
+.x-signal .sg-slop:hover .sg-slop-blob,
+.x-signal .sg-slop:focus-visible .sg-slop-blob {
+  animation: sg-slop-hop 0.56s steps(1) infinite;
+}
+@keyframes sg-slop-blink {
+  0%,
+  96% {
+    transform: translateY(0);
+  }
+  96.01%,
+  100% {
+    transform: translateY(-50%);
+  }
+}
+@keyframes sg-slop-hop {
+  0% {
+    transform: translateY(0);
+  }
+  18% {
+    transform: translateY(calc(var(--u) * -2));
+  }
+  36% {
+    transform: translateY(calc(var(--u) * -3));
+  }
+  54% {
+    transform: translateY(calc(var(--u) * -2));
+  }
+  72%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-signal .sg-slop-blob,
+  .x-signal .sg-slop-blob canvas {
+    animation: none !important;
+  }
+}

@@ -23,8 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 
+# secrets: API keys stay out of git
+.env
+.env.*
+!.env.example
+
 # local claude config
 .claude/
 
 # python
 __pycache__/
+
+# Raw model outputs from the judge benchmark (results.md is the summary)
+sloprillion/tools/judge-bench/results.json

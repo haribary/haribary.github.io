@@ -14,6 +14,7 @@ import { Controller, type ChapterId } from "./controller"
 import { FigureNote } from "./note"
 import { PhoneGate } from "./phone-notice"
 import { SignalCanvas } from "./scene"
+import { SlopLink } from "./slop-link"
 import { createStore } from "./store"
 import { CHAPTERS } from "./story"
 import { loadTerrain, type Terrain } from "./terrain"
@@ -131,6 +132,7 @@ function SignalPage() {
       {/* The opening plate stays put while the camera starts to move, then lets go. */}
       <div className="sg-open" data-anchor>
         <header id="figure" className="sg-hero">
+          <SlopLink />
           <div className="sg-hero-head">
             <BitmapName text={person.name} />
           </div>

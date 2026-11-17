@@ -1,0 +1,560 @@
+[
+ {
+  "a": "Bruce Artwick Organization",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Bruce_Artwick_Organization"
+ },
+ {
+  "a": "Double Fine",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Double_Fine_Productions"
+ },
+ {
+  "a": "Citus Data",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Flipgrid",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Flipgrid"
+ },
+ {
+  "a": "Lobe",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Bonsai",
+  "verdict": "ok",
+  "source": "https://blogs.microsoft.com/blog/2018/06/20/microsoft-to-acquire-bonsai-in-move-to-build-brains-for-autonomous-systems/"
+ },
+ {
+  "a": "Semantic Machines",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Sysinternals",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Sysinternals"
+ },
+ {
+  "a": "Giant Company Software",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Twisted Pixel",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Twisted_Pixel_Games"
+ },
+ {
+  "a": "Kustomer",
+  "verdict": "ok",
+  "source": "https://about.fb.com/news/2020/11/kustomer-to-join-facebook/"
+ },
+ {
+  "a": "Giphy",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Giphy"
+ },
+ {
+  "a": "Dropcam",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Dropcam"
+ },
+ {
+  "a": "Intersect",
+  "verdict": "ok",
+  "source": "https://www.clearygottlieb.com/news-and-insights/news-listing/alphabet-completes-4-75-billion-acquisition-of-intersect-power"
+ },
+ {
+  "a": "Wiz",
+  "verdict": "ok",
+  "source": "https://www.googlecloudpresscorner.com/2026-03-11-Google-Completes-Acquisition-of-Wiz"
+ },
+ {
+  "a": "Nokia's phone business",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Nokia_Devices_and_Services"
+ },
+ {
+  "a": "Motorola Mobility",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Motorola_Mobility"
+ },
+ {
+  "a": "DeepMind",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/DeepMind"
+ },
+ {
+  "a": "Fabric.com",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "TenMarks",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "Tapzo",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "Bloomsbury AI",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Meta_Platforms"
+ },
+ {
+  "a": "Luxexcel",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Meta_Platforms"
+ },
+ {
+  "a": "PrivateCore",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Meta_Platforms"
+ },
+ {
+  "a": "Kaggle",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Industrial Perception",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "GreenBorder",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "DailyDeal",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Urban Engines",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Pointy",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Novauris Technologies",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Apple"
+ },
+ {
+  "a": "Akonia Holographics",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Apple"
+ },
+ {
+  "a": "DarwinAI",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Apple"
+ },
+ {
+  "a": "LiveLoop",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Firefly",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Metaswitch Networks",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "PhoneFactor",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Touchco",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "Orbeus",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "Veeqo",
+  "verdict": "ok",
+  "source": "https://www.exchangewire.com/blog/2022/03/08/amazon-acquires-software-start-up-veeqo-una-brands-klickbrands-partner-for-south-korean-expansion/"
+ },
+ {
+  "a": "Ozlo",
+  "verdict": "ok",
+  "source": "https://venturebeat.com/2017/07/31/facebook-acquires-ai-assistant-startup-ozlo"
+ },
+ {
+  "a": "Presize",
+  "verdict": "ok",
+  "source": "https://fashionunited.com/news/fashion/meta-acquires-presize-betting-on-virtual-sizing-technology/2022042647258"
+ },
+ {
+  "a": "Chai Labs",
+  "verdict": "ok",
+  "source": "https://aphnetworks.com/news/2010/08/16/facebook-snaps-chai-labs"
+ },
+ {
+  "a": "API.AI",
+  "verdict": "ok",
+  "source": "https://techcrunch.com/2016/09/19/google-acquires-api-ai-a-company-helping-developers-build-bots-that-arent-awful-to-talk-to"
+ },
+ {
+  "a": "Channel Intelligence",
+  "verdict": "ok",
+  "source": "https://www.engadget.com/2013/02/06/google-acquires-e-commerce-company-channel-intelligence-for-125/"
+ },
+ {
+  "a": "PittPatt",
+  "verdict": "ok",
+  "source": "https://www.engadget.com/2011-07-23-google-acquires-pittpatt-wants-to-know-you-on-a-face-to-face-ba.html"
+ },
+ {
+  "a": "Pixate",
+  "verdict": "ok",
+  "source": "https://9to5google.com/2015/07/21/google-acquires-pixate-makes-its-mobile-app-prototyping-app-free/"
+ },
+ {
+  "a": "Cask Data",
+  "verdict": "ok",
+  "source": "https://techcrunch.com/2018/05/16/google-acquires-cask-data-to-beef-up-its-tools-for-building-and-running-big-data-analytics/amp"
+ },
+ {
+  "a": "BreezoMeter",
+  "verdict": "ok",
+  "source": "https://www.calcalistech.com/ctechnews/article/sycbrdpbi"
+ },
+ {
+  "a": "Coherent Navigation",
+  "verdict": "ok",
+  "source": "https://www.eweek.com/mobile/apple-acquires-gps-startup-coherent-navigation/"
+ },
+ {
+  "a": "IKinema",
+  "verdict": "ok",
+  "source": "https://www.cnbc.com/2019/10/04/apple-buys-ikinema-uk-based-motion-capture-company.html"
+ },
+ {
+  "a": "MileIQ",
+  "verdict": "ok",
+  "source": "https://siliconangle.com/2015/11/05/microsoft-acquires-the-company-behind-popular-smart-mileage-tracking-app-mileiq/"
+ },
+ {
+  "a": "Sybari Software",
+  "verdict": "ok",
+  "source": "https://news.microsoft.com/2005/06/21/microsoft-completes-acquisition-of-enterprise-security-provider-sybari-software/"
+ },
+ {
+  "a": "Ally.io",
+  "verdict": "ok",
+  "source": "https://www.cnbc.com/2021/10/07/microsoft-acquires-allyio-will-add-it-to-viva.html"
+ },
+ {
+  "a": "StorSimple",
+  "verdict": "ok",
+  "source": "https://news.microsoft.com/2012/10/16/microsoft-reaches-agreement-to-acquire-storsimple/"
+ },
+ {
+  "a": "Accept.com",
+  "verdict": "ok",
+  "source": "https://archive.seattletimes.com/archive/19990611/2965963/amazons-acceptcom-deal-cost-about-1017-million"
+ },
+ {
+  "a": "Partpic",
+  "verdict": "ok",
+  "source": "https://failory.com/amazon/partpic"
+ },
+ {
+  "a": "IGDB",
+  "verdict": "ok",
+  "source": "https://gigazine.net/gsc_news/en/20190918-twitch-acquires-igdb"
+ },
+ {
+  "a": "Nascent Objects",
+  "verdict": "ok",
+  "source": "https://www.engadget.com/2016/09/19/facebook-snags-modular-gadget-startup-nascent-objects/"
+ },
+ {
+  "a": "WaveForms",
+  "verdict": "ok",
+  "source": "https://www.trysignalbase.com/news/acquisitions/waveforms-ai-acquired-by-meta-platforms-acquisition"
+ },
+ {
+  "a": "Secure Islands Technologies",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Microsoft"
+ },
+ {
+  "a": "Lumenisity",
+  "verdict": "ok",
+  "source": "Microsoft blog, 2022-12-09: Microsoft acquires Lumenisity"
+ },
+ {
+  "a": "UpNext",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "Goo Technologies",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Amazon"
+ },
+ {
+  "a": "Fayteq",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Meta_Platforms"
+ },
+ {
+  "a": "Lofelt",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Meta_Platforms"
+ },
+ {
+  "a": "Tenor",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Adscape",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Viewdle",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Moodstocks",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Velostrata",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Alter",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "InVisage Technologies",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Apple"
+ },
+ {
+  "a": "Matcha",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Apple"
+ },
+ {
+  "a": "Eyefluence",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Simsim",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Redwood Robotics",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Marratech",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Jetpac",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Owlchemy Labs",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_mergers_and_acquisitions_by_Alphabet"
+ },
+ {
+  "a": "Whole Foods",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Oculus VR",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Android",
+  "verdict": "unsure",
+  "why": "Google's 2005 purchase of Android Inc. is confirmed, but the price was never officially disclosed; $50M is an estimate."
+ },
+ {
+  "a": "Nuance",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Shazam",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out. The $400M figure is a reported estimate, not a disclosed price."
+ },
+ {
+  "a": "Mandiant",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Kiva Systems",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Visio",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Danger",
+  "verdict": "ok",
+  "source": "Engadget, Feb 2008 (reports $500M, citing a source; Microsoft did not officially disclose it)"
+ },
+ {
+  "a": "aQuantive",
+  "verdict": "fix-fact",
+  "fact": "Bought by Microsoft in 2007 for about $6 billion.",
+  "why": "Announced at about $6B; Microsoft's FY2007 10-Q puts the closed deal at about $5.9B in cash, so $6.3B is not supported.",
+  "source": "https://en.wikipedia.org/wiki/AQuantive ; https://www.sec.gov/Archives/edgar/data/0000789019/000119312507225854/d10q.htm"
+ },
+ {
+  "a": "Power Computing",
+  "verdict": "unsure",
+  "why": "Apple paid $100M in stock plus $10M for debts and costs, so $110M holds only if debts are included; the deal bought the customer list and Mac OS license rather than the company."
+ },
+ {
+  "a": "PrimeSense",
+  "verdict": "unsure",
+  "why": "Apple confirmed the deal (Nov 2013) but not the price; reports range from about $350M (Globes, Bloomberg) to $360M (AllThingsD)."
+ },
+ {
+  "a": "Rare",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Wondery",
+  "verdict": "ok",
+  "source": "Amazon undisclosed price; press reports describe a reported $300M deal (Tubefilter)"
+ },
+ {
+  "a": "Quidsi",
+  "verdict": "unsure",
+  "why": "Not verified: the web search budget ran out before this entry was checked."
+ },
+ {
+  "a": "Souq.com",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Souq.com"
+ },
+ {
+  "a": "Navision",
+  "verdict": "fix-fact",
+  "fact": "Bought by Microsoft in 2002 for about $1.465 billion.",
+  "why": "Bank price $1.33B is wrong; deal completed July 12, 2002 at $1.465B per Microsoft's FY2003 10-K.",
+  "source": "https://www.sec.gov/Archives/edgar/data/0000789019/000119312503045632/d10k.htm"
+ },
+ {
+  "a": "Zagat",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Zagat"
+ },
+ {
+  "a": "ITA Software",
+  "verdict": "unsure",
+  "why": "Google's 2011 completion is confirmed, but the announced price was $700M cash (July 2010), not $676M; the final price could not be confirmed."
+ },
+ {
+  "a": "Joyo.com",
+  "verdict": "ok",
+  "source": "https://press.aboutamazon.com/2004/8/amazon-com-to-acquire-joyo-com-limited"
+ },
+ {
+  "a": "On2 Technologies",
+  "verdict": "fix-fact",
+  "fact": "Bought by Google in 2010 for about $124.6 million.",
+  "why": "Deal closed Feb 19, 2010 at about $124.6M; the $133M figure is a revised offer, not the final price.",
+  "source": "https://en.wikipedia.org/wiki/On2_Technologies"
+ },
+ {
+  "a": "Junglee",
+  "verdict": "fix-fact",
+  "fact": "Bought by Amazon in 1998 in an all-stock deal.",
+  "why": "Bank price $250M is wrong; Amazon's 8-K/A gives an aggregate price of about $180M (paid in stock). The $280M figure covers Junglee and PlanetAll combined. Sources disagree on the value, so the price is dropped.",
+  "source": "https://www.sec.gov/Archives/edgar/data/0001018724/000089102098001491/0000891020-98-001491.txt"
+ },
+ {
+  "a": "Postini",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Postini"
+ },
+ {
+  "a": "FeedBurner",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/FeedBurner"
+ },
+ {
+  "a": "Affirmed Networks",
+  "verdict": "ok",
+  "source": "https://globalventuring.com/blog/2020/03/30/microsoft-buys-affirmed-networks/"
+ },
+ {
+  "a": "Chomp",
+  "verdict": "ok",
+  "source": "https://www.pcworld.com/article/468529/apple_acquires_app_search_company_chomp.html"
+ },
+ {
+  "a": "LinkExchange",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/LinkExchange"
+ },
+ {
+  "a": "Meebo",
+  "verdict": "unsure",
+  "why": "Google's June 2012 acquisition is confirmed, but no price is in the sources found; the $100M figure could not be confirmed."
+ },
+ {
+  "a": "Wildfire Interactive",
+  "verdict": "unsure",
+  "why": "Google's 2012 acquisition is confirmed, but sources conflict: Wikipedia gives $450M; TechCrunch and Business Insider give about $350M plus earnouts."
+ },
+ {
+  "a": "Skybox Imaging",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Skybox_Imaging"
+ }
+]

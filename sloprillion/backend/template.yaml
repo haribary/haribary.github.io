@@ -1,0 +1,153 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Sloprillion daily trivia backend (Lambda Function URL + DynamoDB). Stack name sloprillion, region us-west-2.
+
+Parameters:
+  JudgeProvider:
+    Type: String
+    Default: "off"
+    Description: "off, or the provider name judge.mjs understands (for example openai or bedrock)."
+  JudgeModel:
+    Type: String
+    Default: ""
+  JudgeDailyCap:
+    Type: Number
+    Default: 2000
+    MinValue: 0
+  OpenAiKeyParam:
+    Type: String
+    Default: /sloprillion/openai-key
+    Description: SSM Parameter Store name holding the OpenAI key; read at cold start only when JudgeProvider is openai.
+
+Resources:
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+      Tags:
+        - { Key: project, Value: sloprillion }
+
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: sloprillion-runtime
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !GetAtt LogGroup.Arn
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:BatchGetItem
+                  - dynamodb:BatchWriteItem
+                Resource: !GetAtt Table.Arn
+              - Effect: Allow
+                Action: ssm:GetParameter
+                Resource: !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sloprillion/*
+              - Effect: Allow
+                Action: bedrock:InvokeModel
+                Resource: "*"
+      Tags:
+        - { Key: project, Value: sloprillion }
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/sloprillion-api
+      RetentionInDays: 14
+      Tags:
+        - { Key: project, Value: sloprillion }
+
+  Function:
+    Type: AWS::Lambda::Function
+    DependsOn: LogGroup
+    Properties:
+      FunctionName: sloprillion-api
+      Runtime: nodejs22.x
+      Architectures: [arm64]
+      MemorySize: 512
+      Timeout: 10
+      Handler: handler.handler
+      ReservedConcurrentExecutions: 20
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+          JUDGE_PROVIDER: !Ref JudgeProvider
+          JUDGE_MODEL: !Ref JudgeModel
+          JUDGE_DAILY_CAP: !Ref JudgeDailyCap
+          OPENAI_KEY_PARAM: !Ref OpenAiKeyParam
+      # Placeholder so the stack can exist before the real zip is uploaded
+      # (aws lambda update-function-code --zip-file fileb://dist/function.zip).
+      Code:
+        ZipFile: |
+          exports.handler = async () => ({
+            statusCode: 503,
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ error: "not deployed yet" }),
+          });
+      Tags:
+        - { Key: project, Value: sloprillion }
+
+  FunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt Function.Arn
+      AuthType: NONE
+      Cors:
+        AllowOrigins:
+          - https://haribary.github.io
+          - http://localhost:5199
+        AllowMethods: [GET, POST]
+        AllowHeaders: [content-type]
+        MaxAge: 600
+
+  FunctionUrlInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref Function
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  # Function URLs created after October 2025 need this second grant as well;
+  # without it every request is refused with 403.
+  FunctionUrlInvokeFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref Function
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+Outputs:
+  ApiUrl:
+    Description: Function URL (the frontend's API base)
+    Value: !GetAtt FunctionUrl.FunctionUrl
+  TableName:
+    Value: !Ref Table
+  FunctionName:
+    Value: !Ref Function

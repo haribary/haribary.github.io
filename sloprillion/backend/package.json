@@ -1,0 +1,17 @@
+{
+  "name": "sloprillion-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "dev": "node src/local-server.mjs",
+    "build": "node scripts/build.mjs && python scripts/package.py"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1170.0"
+  }
+}

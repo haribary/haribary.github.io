@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="sloprillion-api" content="https://7cw2o2ymfzusys5clfsg3c6u5m0ncfwu.lambda-url.us-west-2.on.aws">
+<meta name="theme-color" content="#2a2c38">
+<title>Sloprillion</title>
+<meta name="description" content="Daily trivia for AI, startups and computer science. The rarer your right answer, the bigger your raise.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Overpass:wght@400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="app" data-screen="intro">
+
+  <div class="scene">
+    <canvas id="scene" aria-hidden="true"></canvas>
+
+    <div class="hero">
+      <h1 class="wordmark"><canvas id="wordmark" role="img" aria-label="Sloprillion"></canvas></h1>
+      <p class="tagline">Find the signal in the slop.</p>
+    </div>
+
+    <div class="hud">
+      <div class="sign">
+        <span class="sign-k" id="hudCount">Round 1 of 7</span>
+        <b class="sign-v" id="hudStage">Pre-seed</b>
+        <span class="pips" id="pips" aria-hidden="true"></span>
+      </div>
+      <div class="sign sign-val">
+        <span class="sign-k">Valuation</span>
+        <b class="sign-v" id="hudVal">$100K</b>
+      </div>
+    </div>
+
+    <div class="pop" id="pop" aria-hidden="true"></div>
+  </div>
+
+  <main class="deck">
+
+    <section class="screen" id="intro">
+      <button class="btn btn-go btn-big" id="startBtn" type="button">Start round 1</button>
+
+      <div class="board">
+        <div class="lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="board-face rules-face">
+          <h2 class="board-title">How it works</h2>
+          <ul class="rules">
+            <li>Seven prompts, 25 seconds each.</li>
+            <li>Type one answer. Any correct answer counts.</li>
+            <li>The fewer people who would say it, the more you raise.</li>
+          </ul>
+        </div>
+        <div class="posts" aria-hidden="true"><i></i><i></i></div>
+      </div>
+
+      <h2 class="section-title">What an answer is worth</h2>
+      <ul class="tiers" id="tierLegend"></ul>
+    </section>
+
+    <section class="screen" id="game">
+      <div class="board">
+        <div class="lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="board-face" id="face"></div>
+        <div class="posts" aria-hidden="true"><i></i><i></i></div>
+      </div>
+
+      <div class="play" id="play">
+        <div class="runway" id="runway"><div class="runway-fill" id="runwayFill"></div></div>
+        <div class="runway-meta"><span>Runway</span><span id="secs" role="timer" aria-label="Seconds left">25s</span></div>
+        <form class="entry" id="form" autocomplete="off">
+          <label class="field" id="field">
+            <span class="caret" aria-hidden="true">&gt;</span>
+            <input id="answer" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" maxlength="60" placeholder="Type an answer" aria-label="Your answer">
+          </label>
+          <button class="btn btn-go" type="submit">Ship it</button>
+        </form>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="after" id="after" hidden></div>
+    </section>
+
+    <section class="screen" id="final">
+      <div class="board">
+        <div class="lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="board-face final-face">
+          <p class="ask">You went public at</p>
+          <h2 class="bigval" id="finalVal">$100K</h2>
+          <p class="klass"><b id="finalClass">Side project</b><span id="finalPts">0 of 700 points</span></p>
+        </div>
+        <div class="posts" aria-hidden="true"><i></i><i></i></div>
+      </div>
+
+      <section class="dist" id="dist">
+        <h3 class="section-title dist-title"></h3>
+        <div class="dist-plot"></div>
+        <p class="fine dist-note"></p>
+      </section>
+
+      <ol class="recap" id="recap"></ol>
+
+      <div class="actions">
+        <button class="btn btn-go" id="shareBtn" type="button">Copy result</button>
+        <button class="btn" id="againBtn" type="button">Play again</button>
+      </div>
+      <p class="fine" id="nextIn"></p>
+    </section>
+
+  </main>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

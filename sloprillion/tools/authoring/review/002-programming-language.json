@@ -1,0 +1,384 @@
+[
+  {
+    "a": "ML",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/ML_(programming_language)"
+  },
+  {
+    "a": "Lucid",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Lucid_(programming_language)"
+  },
+  {
+    "a": "MUMPS",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/MUMPS"
+  },
+  {
+    "a": "SNOBOL",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/SNOBOL"
+  },
+  {
+    "a": "SETL",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/SETL"
+  },
+  {
+    "a": "Koka",
+    "verdict": "ok",
+    "source": "https://koka-lang.github.io/koka/doc/book.html"
+  },
+  {
+    "a": "Fractran",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/FRACTRAN"
+  },
+  {
+    "a": "Starlark",
+    "verdict": "ok",
+    "source": "https://bazel.build/rules/language"
+  },
+  {
+    "a": "CLIPS",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/CLIPS"
+  },
+  {
+    "a": "LFE",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/LFE_(programming_language)"
+  },
+  {
+    "a": "SIMSCRIPT",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/SIMSCRIPT"
+  },
+  {
+    "a": "BLISS",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/BLISS"
+  },
+  {
+    "a": "Futhark",
+    "verdict": "ok",
+    "source": "https://www.futhark-lang.org/publications/pldi17.pdf"
+  },
+  {
+    "a": "Hexagony",
+    "verdict": "ok",
+    "source": "https://esolangs.org/wiki/Hexagony"
+  },
+  {
+    "a": "m4",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/GNU_m4"
+  },
+  {
+    "a": "Hare",
+    "verdict": "ok",
+    "source": "https://harelang.org/blog/2022-04-25-announcing-hare/"
+  },
+  {
+    "a": "Bluespec",
+    "verdict": "ok",
+    "source": "https://people.csail.mit.edu/bthom/pldi20.pdf"
+  },
+  {
+    "a": "Michelson",
+    "verdict": "ok",
+    "source": "https://octez.tezos.com/docs/alpha/michelson.html"
+  },
+  {
+    "a": "Limbo",
+    "verdict": "ok",
+    "source": "https://www.inferno-os.org/inferno/papers/descent.html"
+  },
+  {
+    "a": "Newspeak",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Newspeak_(programming_language)"
+  },
+  {
+    "a": "JOVIAL",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/JOVIAL"
+  },
+  {
+    "a": "Mesa",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Mesa_(programming_language)"
+  },
+  {
+    "a": "05AB1E",
+    "verdict": "ok",
+    "source": "https://esolangs.org/wiki/05AB1E"
+  },
+  {
+    "a": "BQN",
+    "verdict": "ok",
+    "source": "https://aplwiki.com/wiki/BQN"
+  },
+  {
+    "a": "Sawzall",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Sawzall_(programming_language)"
+  },
+  {
+    "a": "Faust",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/FAUST_(programming_language)"
+  },
+  {
+    "a": "Cyclone",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Cyclone_(programming_language)"
+  },
+  {
+    "a": "ACL2",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/ACL2"
+  },
+  {
+    "a": "Plankalkül",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Plankalk%C3%BCl"
+  },
+  {
+    "a": "X10",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/X10_(programming_language)"
+  },
+  {
+    "a": "Iota",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Iota_and_Jot"
+  },
+  {
+    "a": "Labyrinth",
+    "verdict": "ok",
+    "source": "https://esolangs.org/wiki/Labyrinth"
+  },
+  {
+    "a": "Lox",
+    "verdict": "ok",
+    "source": "https://eli.thegreenplace.net/2022/book-review-crafting-interpreters-by-robert-nystrom/"
+  },
+  {
+    "a": "Alef",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Alef_(programming_language)"
+  },
+  {
+    "a": "PL/M",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/PL/M"
+  },
+  {
+    "a": "ATS",
+    "verdict": "ok",
+    "source": "https://wikipedia.com/wiki/ATS_(programming_language)"
+  },
+  {
+    "a": "PILOT",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/PILOT"
+  },
+  {
+    "a": "Short Code",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Short_Code_(computer_language)"
+  },
+  {
+    "a": "Speedcoding",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Speedcoding"
+  },
+  {
+    "a": "MATH-MATIC",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/MATH-MATIC"
+  },
+  {
+    "a": "COMTRAN",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/COMTRAN"
+  },
+  {
+    "a": "FLOW-MATIC",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/FLOW-MATIC"
+  },
+  {
+    "a": "RPG",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/IBM_RPG"
+  },
+  {
+    "a": "Fortress",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Fortress_(programming_language)"
+  },
+  {
+    "a": "Uiua",
+    "verdict": "ok",
+    "source": "https://aplwiki.com/wiki/Uiua"
+  },
+  {
+    "a": "Jot",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Iota_and_Jot"
+  },
+  {
+    "a": "Refal",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Refal"
+  },
+  {
+    "a": "SISAL",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/SISAL"
+  },
+  {
+    "a": "Metafont",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Metafont"
+  },
+  {
+    "a": "NESL",
+    "verdict": "ok",
+    "source": "https://www.cs.hmc.edu/courses/2009/fall/cs156/DataParallelLanguages.pdf"
+  },
+  {
+    "a": "Silq",
+    "verdict": "ok",
+    "source": "https://eth-sri.github.io/silq-webpage/downloads/Silq-Press_Release.pdf"
+  },
+  {
+    "a": "MAD",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/MAD_(programming_language)"
+  },
+  {
+    "a": "Autocode",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/Autocode"
+  },
+  {
+    "a": "COMIT",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/COMIT"
+  },
+  {
+    "a": "Quipper",
+    "verdict": "ok",
+    "source": "https://arxiv.org/pdf/1304.3390"
+  },
+  {
+    "a": "JOSS",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.org/wiki/JOSS"
+  },
+  {
+    "a": "Power Fx",
+    "verdict": "ok",
+    "source": "https://learn.microsoft.com/en-ie/power-platform/power-fx/overview"
+  },
+  {
+    "a": "Kusto Query Language",
+    "verdict": "ok",
+    "source": "https://learn.microsoft.com/en-us/kusto/query"
+  },
+  {
+    "a": "Structured Text",
+    "verdict": "ok",
+    "source": "https://www.processonline.com.au/content/factory-automation/article/understanding-the-iec61131-3-programming-languages-837487666"
+  },
+  {
+    "a": "Ladder Logic",
+    "verdict": "ok",
+    "source": "https://en.wikipedia.com/wiki/Ladder_logic"
+  },
+  {
+    "a": "Vyxal",
+    "verdict": "fix-fact",
+    "fact": "Golfing language created by Lyxal in 2020; Vyxal 3 is stack-based.",
+    "why": "Bank credits a team; esolang wiki credits the creator Lyxal, first released 2020.",
+    "source": "https://esolangs.org/wiki/Vyxal"
+  },
+  {
+    "a": "C++",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Modula-2",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Turing",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "BCPL",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Rexx",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Tiny BASIC",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Oberon",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Csound",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "PL/I",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "REBOL",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "False",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Hope",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "CPL",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "Cilk",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  },
+  {
+    "a": "S",
+    "verdict": "unsure",
+    "why": "Web search budget ran out before this entry was checked; no source found in this run."
+  }
+]
