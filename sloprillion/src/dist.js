@@ -128,17 +128,16 @@ let current = null; // { root, model, score }
 let observer = null;
 
 // `players` is set once the day has enough real results to say so. A practice
-// run is a replay that never reached the server, and the note says so.
+// run is a replay that never reached the server; the note under the curve says
+// so, and is not shown otherwise.
 export function renderDistribution(root, model, score, players = 0, practice = false) {
   current = { root, model, score: clampScore(score) };
   const ahead = shareBelow(model, score);
-  const lo = scoreAtShare(model, 0.1), hi = scoreAtShare(model, 0.9);
   root.querySelector(".dist-title").textContent =
     players >= PRIOR ? `Ahead of ${pctText(ahead)} of today's ${players} players` : `Ahead of ${pctText(ahead)} of today's players`;
-  root.querySelector(".dist-note").textContent = (
-    `Most players finish between ${shortMoney(valuation(lo))} and ${shortMoney(valuation(hi))}. ` +
-    (players >= PRIOR ? "" : `This curve is an estimate from the rarity scores until real results come in. `) +
-    (practice ? "This was a practice run, so it is not counted." : "")).trim();
+  const note = root.querySelector(".dist-note");
+  note.textContent = practice ? "This was a practice run, so it is not counted." : "";
+  note.hidden = !practice;
   const plot = root.querySelector(".dist-plot");
   if (!observer) { observer = new ResizeObserver(draw); observer.observe(plot); }
   draw();
@@ -168,7 +167,7 @@ function draw() {
 
   const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img" });
   svg.setAttribute("aria-label",
-    `${root.querySelector(".dist-title").textContent}. ${root.querySelector(".dist-note").textContent}`);
+    `${root.querySelector(".dist-title").textContent}. ${root.querySelector(".dist-note").textContent}`.trim());
 
   // the crowd: everyone behind you is the stronger wash, everyone ahead the lighter one
   const mx = x(score);

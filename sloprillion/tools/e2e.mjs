@@ -207,7 +207,8 @@ try {
   check("seven recap rows", (await ev("document.querySelectorAll('#recap li').length")) === 7);
   if (API) {
     await sleep(500);
-    check("real tally of one player keeps the estimate wording", /^Ahead of .* of today's players$/.test(await q(".dist-title")) && /estimate/.test(await q(".dist-note")), await q(".dist-title"));
+    check("real tally of one player keeps the title without a player count", /^Ahead of .* of today's players$/.test(await q(".dist-title")), await q(".dist-title"));
+    check("first result shows no note under the curve", await ev("document.querySelector('.dist-note').hidden && document.querySelector('.dist-note').textContent === ''"));
   }
   check("distribution curve is drawn", await ev("!!document.querySelector('.dist-plot svg .dist-line') && /Ahead of/.test(document.querySelector('.dist-title').textContent)"), await q(".dist-title"));
   const box = await ev("(() => { const r = document.querySelector('.dist-plot').getBoundingClientRect(); return { x: r.left + r.width * 0.3, y: r.top + r.height * 0.6 }; })()");
@@ -251,7 +252,8 @@ try {
   }
   check("practice run reaches the final screen", (await screen()) === "final");
   check("practice run's note says so", /practice run/.test(await q(".dist-note")), await q(".dist-note"));
-  check("practice run draws the estimated curve", await ev("!!document.querySelector('.dist-plot svg .dist-line') && /estimate/.test(document.querySelector('.dist-note').textContent)"));
+  check("practice run draws the curve", await ev("!!document.querySelector('.dist-plot svg .dist-line')"));
+  check("practice note is only the practice sentence", (await q(".dist-note")) === "This was a practice run, so it is not counted.", await q(".dist-note"));
   if (API) {
     await sleep(500);
     check("replay made no network calls", netCount === netBeforeReplay, `${netCount - netBeforeReplay} requests`);
@@ -318,7 +320,7 @@ try {
     await sleep(500);
     check("offline game reaches the final screen", (await screen()) === "final");
     await sleep(800);
-    check("offline final draws the estimated curve", await ev("!!document.querySelector('.dist-plot svg .dist-line') && /estimate/.test(document.querySelector('.dist-note').textContent)"), await q(".dist-title"));
+    check("offline final draws the curve", await ev("!!document.querySelector('.dist-plot svg .dist-line')"), await q(".dist-title"));
     await ev("localStorage.clear()");
   }
 } catch (e) {
