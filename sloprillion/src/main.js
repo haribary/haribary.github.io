@@ -10,6 +10,8 @@ import { buildIndex, match, matchWrong } from "./match.js";
 import { createScene } from "./scene.js";
 import { drawWordmark, tierIcon } from "./sprites.js";
 import { estimateDay, fromServer, renderDistribution } from "./dist.js";
+import { renderBoard } from "./board.js";
+import { tidyName, nameProblem } from "./name.js";
 import { createApi } from "./api.js";
 
 const $ = (s) => document.querySelector(s);
@@ -58,6 +60,27 @@ const store = {
   clear() { try { localStorage.removeItem(SAVE_KEY); } catch { /* nothing to clear */ } },
 };
 
+// The name the player goes on the leaderboard under. It is optional, asked for
+// before the first round and remembered for tomorrow. The server has the last
+// word on it; these lines explain a refusal.
+const NAME_KEY = "sloprillion:name";
+const NAME_HELP = {
+  empty: "Type a name first.",
+  long: "Names can be up to 16 characters.",
+  invalid: "Use letters, numbers, spaces, dots, dashes, underscores or apostrophes.",
+  blocked: "That name can't go on the board. Try another.",
+};
+const keptName = {
+  get() { try { return tidyName(localStorage.getItem(NAME_KEY)); } catch { return ""; } },
+  set(v) { try { if (v) localStorage.setItem(NAME_KEY, v); else localStorage.removeItem(NAME_KEY); } catch { /* play on */ } },
+};
+let runName = ""; // the name this game's result is posted under; empty stays off the board
+
+function say(el, text) {
+  el.textContent = text || "";
+  el.hidden = !text;
+}
+
 function renderPips() {
   $("#pips").innerHTML = prompts.map((_, k) => {
     const r = state.results[k];
@@ -86,6 +109,29 @@ function showIntro() {
   setScreen("intro");
   scene.goTo(0, true);
   $("#startBtn").textContent = `Start round ${round.id}`;
+  // The board and the name on it need the server; without one neither is shown.
+  if (serverApi) {
+    $("#nameBar").hidden = false;
+    $("#playerName").value = keptName.get();
+    const root = $("#introBoard");
+    renderBoard(root, null); // ten empty places until the answer comes
+    serverApi.board().then((board) => renderBoard(root, board));
+  }
+}
+
+// Start button, or Enter in the name field. A name that cannot be used is
+// caught here, before any time is spent on the round.
+function begin(e) {
+  e.preventDefault();
+  if (serverApi) {
+    const field = $("#playerName"), name = tidyName(field.value);
+    const problem = name ? nameProblem(name) : null;
+    say($("#nameMsg"), problem && NAME_HELP[problem]);
+    if (problem) { field.focus(); return; }
+    keptName.set(name);
+    runName = name;
+  }
+  startGame();
 }
 
 function renderLegend() {
@@ -326,17 +372,55 @@ function showFinal(save) {
   };
   const kept = practice ? null : store.get(); // a practice run never shows the first game's tally
   draw(kept && kept.dist);
+  $("#finalBoard").hidden = true;
+  $("#addName").hidden = true;
+  if (serverApi) renderBoard($("#finalBoard"), null);
   if (save && api) {
-    api.finish().then((r) => {
-      if (!r) return;
+    api.finish(runName).then((r) => {
+      if (!r) { loadFinalBoard(); return; }
       // The score on screen stays the one computed here; a mismatch is a bug worth hearing about.
       if (r.score !== score) console.warn(`sloprillion: server scored ${r.score}, page scored ${score}`);
       const dist = { counts: r.dist.counts, players: r.dist.players ?? r.dist.counts.reduce((a, b) => a + b, 0) };
       store.set({ score, results, dist });
-      if (!practice) draw(dist); // a replay may have started while the server thought
+      if (practice) return; // a replay may have started while the server thought
+      draw(dist);
+      showFinalBoard(r.board, r.nameError);
     });
+  } else if (serverApi) {
+    loadFinalBoard(); // a result from earlier today, or a practice run: the board as it stands
   }
   countdown();
+}
+
+function loadFinalBoard() {
+  serverApi.board().then((board) => showFinalBoard(board));
+}
+
+// The board on the results screen. A first result that is not on it yet
+// (no name given, or the name was refused) gets the form to add one.
+function showFinalBoard(board, nameError) {
+  if (state.phase !== "final") return;
+  renderBoard($("#finalBoard"), board);
+  const canAdd = !!board && !board.you && !practice && !!store.get();
+  $("#addName").hidden = !canAdd;
+  if (!canAdd) return;
+  const field = $("#addNameInput");
+  if (!field.value) field.value = nameError ? runName : keptName.get();
+  say($("#addNameMsg"), nameError && NAME_HELP[nameError]);
+}
+
+async function addName(e) {
+  e.preventDefault();
+  const field = $("#addNameInput"), btn = $("#addNameBtn"), note = $("#addNameMsg");
+  const name = tidyName(field.value), problem = nameProblem(name);
+  say(note, problem && NAME_HELP[problem]);
+  if (problem) { field.focus(); return; }
+  btn.disabled = true;
+  const r = await serverApi.finish(name);
+  btn.disabled = false;
+  if (!r) { say(note, "The leaderboard can't be reached right now. Try again."); return; }
+  if (!r.nameError) keptName.set(name);
+  showFinalBoard(r.board, r.nameError);
 }
 
 function shareText() {
@@ -374,7 +458,8 @@ function countdown() {
 }
 
 // -------------------------------------------------------------------- wire
-$("#startBtn").addEventListener("click", startGame);
+$("#startForm").addEventListener("submit", begin);
+$("#addName").addEventListener("submit", addName);
 $("#form").addEventListener("submit", submit);
 input.addEventListener("input", () => { if (state.phase === "answering") msg.textContent = ""; });
 $("#shareBtn").addEventListener("click", share);

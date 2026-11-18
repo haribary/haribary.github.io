@@ -151,6 +151,7 @@ export const contacts: (LinkItem & { value: string })[] = [
     value: "Harrison Li",
     href: "https://www.linkedin.com/in/harrison-li-60b551368/",
   },
+  { label: "X", value: "x.com/haribary", href: "https://x.com/haribary" },
   {
     label: "Scholar",
     value: "Google Scholar",

@@ -37,6 +37,8 @@ Errors are `{ "error": "..." }` with 400 (bad input, or the prompt is already an
   - answering a prompt already locked for that session is a 400.
 - `POST /v1/finish` takes `{ date, session }` and returns `{ score, results: [{ promptId, a, pts }], dist, ahead }`. The score is summed on the server from locked prompts (unanswered count 0). Finishing twice counts once and returns the first score. `ahead` is in 0..1, computed per 10-point bucket: sessions in lower buckets plus half of those in the same bucket (the caller included).
 - `GET /v1/dist?date=` returns `{ counts: number[71], players }`; `counts[i]` is finished sessions with `floor(score / 10) = i`.
+- `POST /v1/finish` also takes an optional `name`, which puts the result on the day's leaderboard, once per session: the first name stays. Calling it again with a name adds one to a result that has none. The response carries `board` (below) and, when the name is refused, `nameError` (`"long"`, `"invalid"` or `"blocked"`); the score counts either way. Name rules are in `../src/name.js` (1 to 16 letters, digits, spaces and `._'-`) plus the word list in `src/names.mjs`.
+- `GET /v1/board?date=&session=` returns `{ date, top: [{ rank, name, score, me? }], you }`: the best ten of the day, best first, earlier finisher first on a tie. `session` is optional; with it, `me` marks the caller's own row and `you` is `{ rank, name, score }` even when that rank is past ten. Session ids never appear in a response. To take a name off the board, delete its `L#<date>` item from the table.
 - `OPTIONS *` returns 204.
 
 Keys use the resolved round's date, not the date in the request.

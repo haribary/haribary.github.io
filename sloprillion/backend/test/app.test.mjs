@@ -370,3 +370,113 @@ test("a wrong entry that collides with a real answer is dropped and the real ans
   assert.equal((await ask("alpha")).body.valid, true);
   assert.equal((await ask("beta")).body.why, "Nope.");
 });
+
+// ---- leaderboard ----
+
+// Plays p1 and p2 with the given answers and finishes, optionally under a name.
+async function play(ctx, session, a1, a2, name) {
+  if (a1) await ctx.answer(session, "p1", a1);
+  if (a2) await ctx.answer(session, "p2", a2);
+  return (await ctx.post("/v1/finish", { date: DATE, session, ...(name === undefined ? {} : { name }) })).body;
+}
+const board = (ctx, query = {}) => ctx.app({ method: "GET", path: "/v1/board", query: { date: DATE, ...query } });
+
+test("a named finish goes on the board; an unnamed one does not", async () => {
+  const ctx = setup();
+  const named = sid(), unnamed = sid();
+  const r = await play(ctx, named, "Echo", "Yankee", "  Ada   Lovelace ");
+  assert.equal(r.score, 160);
+  assert.deepEqual(r.board.top, [{ rank: 1, name: "Ada Lovelace", score: 160, me: true }]);
+  assert.deepEqual(r.board.you, { rank: 1, name: "Ada Lovelace", score: 160 });
+  assert.equal(r.nameError, undefined);
+  const u = await play(ctx, unnamed, "Alpha", "Zulu");
+  assert.equal(u.board.you, null);
+  assert.deepEqual(u.board.top, [{ rank: 1, name: "Ada Lovelace", score: 160 }]);
+  // both still count as players in the distribution
+  assert.equal(u.dist.players, 2);
+});
+
+test("GET /v1/board: top rows, best first, the caller's own row marked, no keys or sessions", async () => {
+  const ctx = setup({ config: { boardSize: 3 } });
+  const sessions = {};
+  for (const [name, a1, a2] of [["Low", "Alpha", "Zulu"], ["High", "Echo", "Yankee"], ["Mid", "Delta Force", "Zulu"], ["Last", "Alpha", null]]) {
+    sessions[name] = sid();
+    await play(ctx, sessions[name], a1, a2, name);
+  }
+  const anon = (await board(ctx)).body;
+  assert.equal(anon.date, DATE);
+  assert.deepEqual(anon.top, [
+    { rank: 1, name: "High", score: 160 },
+    { rank: 2, name: "Mid", score: 85 },
+    { rank: 3, name: "Low", score: 25 },
+  ]);
+  assert.equal(anon.you, null);
+  const mid = (await board(ctx, { session: sessions.Mid })).body;
+  assert.deepEqual(mid.top[1], { rank: 2, name: "Mid", score: 85, me: true });
+  assert.deepEqual(mid.you, { rank: 2, name: "Mid", score: 85 });
+  // outside the top rows: not listed, but told where they stand
+  const last = (await board(ctx, { session: sessions.Last })).body;
+  assert.equal(last.top.some((row) => row.me), false);
+  assert.deepEqual(last.you, { rank: 4, name: "Last", score: 10 });
+  const raw = JSON.stringify([anon, mid, last]);
+  for (const s of Object.values(sessions)) assert.ok(!raw.includes(s), "a session id leaked");
+  assert.ok(!raw.includes('"key"'));
+});
+
+test("the first name stays; finishing again cannot rename or rescore", async () => {
+  const ctx = setup();
+  const s = sid();
+  await play(ctx, s, "Echo", "Yankee", "First");
+  const again = (await ctx.post("/v1/finish", { date: DATE, session: s, name: "Second" })).body;
+  assert.equal(again.score, 160);
+  assert.deepEqual(again.board.you, { rank: 1, name: "First", score: 160 });
+  assert.equal((await board(ctx)).body.top.length, 1);
+});
+
+test("a player who skipped the name can add one after finishing", async () => {
+  const ctx = setup();
+  const s = sid();
+  const first = await play(ctx, s, "Bravo Charlie", "Zulu");
+  assert.equal(first.board.you, null);
+  const later = (await ctx.post("/v1/finish", { date: DATE, session: s, name: "Late" })).body;
+  assert.deepEqual(later.board.you, { rank: 1, name: "Late", score: 55 });
+  assert.equal(later.dist.players, 1, "adding a name must not count the player twice");
+});
+
+test("a refused name keeps the score but stays off the board, and says why", async () => {
+  const ctx = setup();
+  for (const [name, reason] of [["<script>", "invalid"], ["x".repeat(17), "long"], ["...", "invalid"], [42, "invalid"]]) {
+    const r = await play(ctx, sid(), "Alpha", "Zulu", name);
+    assert.equal(r.score, 25);
+    assert.equal(r.nameError, reason, String(name));
+    assert.equal(r.board.you, null);
+  }
+  assert.equal((await board(ctx)).body.top.length, 0);
+  // a refused name can be replaced
+  const s = sid();
+  await play(ctx, s, "Alpha", "Zulu", "bad<name>");
+  const fixed = (await ctx.post("/v1/finish", { date: DATE, session: s, name: "Good Name" })).body;
+  assert.deepEqual(fixed.board.you, { rank: 1, name: "Good Name", score: 25 });
+});
+
+test("ties rank by who finished first", async () => {
+  const store = createMemoryStore();
+  let clock = Date.UTC(2030, 4, 10, 12);
+  const app = createApp({ store, judge: async () => ({ valid: false }), rounds: [earlier, round], now: () => (clock += 1000) });
+  const post = (path, body) => app({ method: "POST", path, body: JSON.stringify(body) });
+  for (const name of ["Early", "Later"]) {
+    const session = sid();
+    await post("/v1/answer", { date: DATE, promptId: "p1", session, text: "Echo" });
+    await post("/v1/finish", { date: DATE, session, name });
+  }
+  const top = (await app({ method: "GET", path: "/v1/board", query: { date: DATE } })).body.top;
+  assert.deepEqual(top.map((row) => [row.rank, row.name]), [[1, "Early"], [2, "Later"]]);
+});
+
+test("GET /v1/board rejects a malformed session and is empty for a quiet day", async () => {
+  const ctx = setup();
+  assert.equal((await board(ctx, { session: "no" })).status, 400);
+  const quiet = (await board(ctx)).body;
+  assert.deepEqual(quiet.top, []);
+  assert.equal(quiet.you, null);
+});

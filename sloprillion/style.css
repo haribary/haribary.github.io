@@ -319,6 +319,72 @@ ul, ol { list-style: none; padding: 0; }
 .dist-tip b { display: block; font-weight: 800; font-size: 15px; }
 .dist-tip span { color: var(--dim); }
 
+/* ------------------------------------------------------------ leaderboard */
+/* A billboard of its own. On a wide screen it is the giant one at the
+   roadside: it stands left of the column, tall enough to rise into the street,
+   and always lists ten places, taken or open. On a narrow screen it sits in
+   the column like the other boards and lists only the places taken. */
+#intro .lb, #final .lb { margin-top: 48px; }
+.lb-face { padding: 16px 16px 14px; text-align: left; }
+.lb .board-title { padding-bottom: 12px; border-bottom: var(--u) solid var(--ink); text-align: center; }
+.lb-rows { display: grid; margin-top: 8px; }
+.lb-rows li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 40px;
+  margin: 0 -8px;
+  padding: 2px 8px;
+}
+.lb-rank { box-shadow: inset 0 0 0 2px var(--ink); font-size: 15px; font-weight: 800; line-height: 24px; text-align: center; }
+.lb-rows li[data-rank="1"] .lb-rank { background: var(--lane); }
+.lb-rows li[data-rank="2"] .lb-rank { background: #cfd4e2; }
+.lb-rows li[data-rank="3"] .lb-rank { background: var(--t2); }
+.lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; font-weight: 700; }
+.lb-val { font: 400 30px/1 var(--display); letter-spacing: 0.02em; }
+/* The player's own row: a lane-yellow band. */
+.lb-rows li.me { background: var(--lane); }
+.lb-rows li.me .lb-rank { background: var(--face); }
+.lb-you { margin-left: 10px; padding: 1px 6px 2px; background: var(--ink); color: var(--lane); font-size: 12px; font-weight: 800; vertical-align: 2px; }
+/* A place nobody has taken yet: its number and an empty line. */
+.lb-rows li.open { display: none; }
+/* ...unless no place is taken: an empty board, or one that could not be
+   loaded, still shows its ten places at any width. */
+.lb-rows:not(:has(li:not(.open))) li.open { display: grid; }
+.lb-rows li.open .lb-rank { box-shadow: inset 0 0 0 2px #a9afc0; background: none; color: #666c80; }
+.lb-rows li.open .lb-name { height: 0; border-bottom: 2px dashed #c3c8d6; }
+.lb-rows .lb-gap { min-height: 0; margin: 6px 0; padding: 0; border-top: 2px dashed rgba(20, 21, 28, 0.45); }
+
+@media (min-width: 1240px) {
+  .deck { position: relative; }
+  /* Out of the column and into the left margin, as wide as the margin allows.
+     --lb-rise is how far the board stands above the top of the column. */
+  #intro .lb, #final .lb {
+    position: absolute;
+    top: calc(var(--lb-rise) * -1);
+    right: calc(100% + 12px);
+    width: clamp(264px, calc((100vw - 632px) / 2 - 52px), 400px);
+    margin: 0;
+  }
+  #intro .lb { --lb-rise: 236px; }
+  #final .lb { --lb-rise: 150px; }
+  .lb .board-title { font-size: 40px; }
+  .lb .posts { height: 76px; padding: 0 20%; }
+  .lb .posts i { width: 16px; }
+  .lb-rows li.open { display: grid; }
+  .lb-val { font-size: clamp(24px, 2vw, 30px); }
+}
+
+/* The nickname a player goes on the board under: asked for before the first
+   round, and again on the results screen for anyone who finished without one. */
+.namebar { margin: 18px var(--u) 0; }
+.namebar-label { display: block; margin-bottom: 12px; font-size: 15px; font-weight: 700; }
+.namebar .msg, .addname .msg { min-height: 0; margin: 12px 0 0; }
+#intro .namebar + .btn-big { margin-top: 28px; }
+.addname { margin: 24px var(--u) 0; }
+.addname .entry { margin: 0; }
+
 .recap { display: grid; gap: 16px; margin: 28px var(--u) 0; }
 .recap li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: center; }
 .recap .pts { --b: var(--ink); padding: 4px 0 6px; background: var(--tier); color: var(--ink); text-align: center; font: 400 34px/0.9 var(--display); }

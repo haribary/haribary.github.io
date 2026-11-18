@@ -3,6 +3,8 @@
 // Key layout (date is the round's date, vk is "<round id>:<prompt id>"):
 //   S#<date>#<session>  P#<promptId>        attempts, judgeCalls, locked, a, pts, ttl
 //   S#<date>#<session>  FIN                 score, ttl            (written once: "finish once")
+//                                           + name, bkey once the session is on the leaderboard
+//   L#<date>            <board key>         name, score, ttl      (leaderboard, best first; see boardKey)
 //   V#<vk>              <normalised text>   verdict cache: valid, canonical, pts, why
 //   C#<date>            <promptId>#<canon>  name, n               (accepted-answer counters)
 //   B#<date>            JUDGE               n, ttl                (daily judge budget)
@@ -10,6 +12,8 @@
 //
 // Interface and behaviour match store-memory.mjs; test/store.test.mjs runs the
 // same suite against either (STORE=dynamo TABLE_NAME=... node --test test/).
+
+import { boardKey } from "./store-memory.mjs";
 
 const TTL_DAYS = 14;
 const BUCKETS = 71;
@@ -145,6 +149,70 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
       const it = await get(M({ pk: `D#${date}`, sk: "HIST" }), true);
       const counts = Array.from({ length: BUCKETS }, (_, i) => (it && it[`b${i}`]) || 0);
       return { counts, players: (it && it.players) || 0 };
+    },
+
+    // Name the FIN item (only if it has no name yet) and add the leaderboard
+    // item in one transaction, so a session is on the board at most once.
+    async postBoard(date, session, name, at) {
+      const fin = await get(sKey(date, session, "FIN"), true);
+      if (!fin) return null;
+      if (fin.bkey) return { first: false, entry: { name: fin.name, score: fin.score, key: fin.bkey } };
+      const key = boardKey(fin.score, at, session);
+      try {
+        await send(new ddb.TransactWriteItemsCommand({
+          TransactItems: [
+            { Update: {
+              TableName,
+              Key: sKey(date, session, "FIN"),
+              UpdateExpression: "SET #name = :name, bkey = :key",
+              ConditionExpression: "attribute_exists(pk) AND attribute_not_exists(bkey)",
+              ExpressionAttributeNames: { "#name": "name" },
+              ExpressionAttributeValues: M({ ":name": name, ":key": key }),
+            } },
+            { Put: { TableName, Item: M({ pk: `L#${date}`, sk: key, name, score: fin.score, ttl: ttl() }) } },
+          ],
+        }));
+        return { first: true, entry: { name, score: fin.score, key } };
+      } catch (e) {
+        if (e?.name !== "TransactionCanceledException") throw e;
+        const again = await get(sKey(date, session, "FIN"), true);
+        if (!again?.bkey) throw e;
+        return { first: false, entry: { name: again.name, score: again.score, key: again.bkey } };
+      }
+    },
+
+    async getBoardEntry(date, session) {
+      const fin = await get(sKey(date, session, "FIN"), true);
+      return fin?.bkey ? { name: fin.name, score: fin.score, key: fin.bkey } : null;
+    },
+
+    async getBoardTop(date, limit) {
+      const r = await send(new ddb.QueryCommand({
+        TableName,
+        KeyConditionExpression: "pk = :pk",
+        ExpressionAttributeValues: M({ ":pk": `L#${date}` }),
+        Limit: limit,
+        ConsistentRead: true,
+      }));
+      return (r.Items || []).map((it) => unmarshall(it)).map((it) => ({ name: it.name, score: it.score, key: it.sk }));
+    },
+
+    // Counts the entries that sort ahead of this one.
+    async getBoardRank(date, key) {
+      let ahead = 0, from;
+      do {
+        const r = await send(new ddb.QueryCommand({
+          TableName,
+          KeyConditionExpression: "pk = :pk AND sk < :key",
+          ExpressionAttributeValues: M({ ":pk": `L#${date}`, ":key": key }),
+          Select: "COUNT",
+          ConsistentRead: true,
+          ExclusiveStartKey: from,
+        }));
+        ahead += r.Count || 0;
+        from = r.LastEvaluatedKey;
+      } while (from);
+      return ahead + 1;
     },
   };
 }

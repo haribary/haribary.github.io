@@ -89,13 +89,27 @@ export function createApi(round, query) {
       return null;
     },
 
-    // End of game: the server's score and the day's tally, or null.
-    async finish() {
+    // End of game: the server's score, the day's tally and the leaderboard, or
+    // null. A name puts the result on the board; finishing again with a name
+    // adds one to a result that has none, and never changes the score.
+    async finish(name) {
       await Promise.race([Promise.allSettled([...pending]), sleep(4000)]); // let the answers land first
       try {
-        const r = await post("/v1/finish", {}, 10000);
+        const r = await post("/v1/finish", name ? { name } : {}, 10000);
         if (r && Number.isFinite(r.score) && r.dist && Array.isArray(r.dist.counts)) return r;
       } catch { /* fall back to the estimate */ }
+      return null;
+    },
+
+    // Today's leaderboard ({ top, you }), with this player's own row marked, or null.
+    async board() {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 8000);
+      try {
+        const res = await fetch(`${base}/v1/board?date=${round.date}&session=${session}`, { signal: ctl.signal });
+        const r = res.ok ? await res.json() : null;
+        if (r && Array.isArray(r.top)) return r;
+      } catch { /* the board is optional */ } finally { clearTimeout(timer); }
       return null;
     },
   };

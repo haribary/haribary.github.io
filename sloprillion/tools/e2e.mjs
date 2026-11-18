@@ -18,7 +18,8 @@ const tmp = mkdtempSync(join(tmpdir(), "sloprillion-e2e-"));
 const profile = join(tmp, "chrome-profile");
 const shotDir = shotArg ? shotArg.slice(8) : join(tmp, "shots");
 mkdirSync(shotDir, { recursive: true });
-const PORT = Number(process.env.CDP_PORT) || 9347;
+// A port of its own for each run, so a browser left over from an earlier run cannot be in the way.
+const PORT = Number(process.env.CDP_PORT) || 9300 + Math.floor(Math.random() * 600);
 const SITE = process.env.SITE || "http://localhost:5199/sloprillion/";
 const API_PORT = 8787; // what ?api=local means
 // Local mode is forced with ?api=off, because the page itself may name a live server.
@@ -37,6 +38,9 @@ const startServer = async () => {
   throw new Error("local API did not start");
 };
 const apiGet = async (path) => (await fetch(`http://localhost:${API_PORT}${path}`)).json();
+const PLAYER = "Test Founder"; // the name the first playthrough goes on the board under
+// A name the server's word list refuses, kept in ROT13 as the list itself is.
+const BLOCKED_NAME = "shpx".replace(/[a-z]/g, (c) => String.fromCharCode(((c.charCodeAt(0) - 97 + 13) % 26) + 97));
 const apiPost = async (path, body) => (await fetch(`http://localhost:${API_PORT}${path}`, { method: "POST", body: JSON.stringify(body) })).json();
 if (API) await startServer();
 
@@ -51,25 +55,32 @@ const logs = [];
 let hold = 0;
 let netCount = 0; // requests the page sent to the API (API mode only)
 async function connect() {
-  for (let i = 0; i < 40; i++) {
-    try {
-      const list = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
-      const page = list.find((t) => t.type === "page");
-      if (page) {
-        ws = new WebSocket(page.webSocketDebuggerUrl);
-        await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });
+  // Chrome opens the port on one loopback address or the other, so try both.
+  let open = null;
+  for (let i = 0; i < 40 && !open; i++) {
+    for (const host of ["127.0.0.1", "[::1]"]) {
+      try {
+        const list = await (await fetch(`http://${host}:${PORT}/json`)).json();
+        const page = list.find((t) => t.type === "page");
+        if (!page) continue;
+        const socket = new WebSocket(page.webSocketDebuggerUrl);
+        await new Promise((r, j) => { socket.onopen = r; socket.onerror = j; });
+        open = socket;
         break;
-      }
-    } catch { /* not up yet */ }
-    await sleep(250);
+      } catch { /* not up yet */ }
+    }
+    if (!open) await sleep(250);
   }
+  if (!open) throw new Error(`could not reach Chrome's debugging port ${PORT}`);
+  ws = open;
   ws.onmessage = (ev) => {
     const m = JSON.parse(ev.data);
     if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
     if (m.method === "Fetch.requestPaused") {
       // hold answer checks for `hold` ms so the "Checking" state can be observed
       const { requestId, request } = m.params;
-      netCount++;
+      // reading the leaderboard changes nothing on the server, so it is not counted
+      if (!(request.method === "GET" && /\/v1\/board/.test(request.url))) netCount++;
       const slow = hold && request.method === "POST" && /\/v1\/answer/.test(request.url);
       setTimeout(() => send("Fetch.continueRequest", { requestId }), slow ? hold : 0);
     }
@@ -106,6 +117,21 @@ try {
   await sleep(2500);
   check("intro screen shows first", (await screen()) === "intro");
   check("legend has six tiers", (await ev("document.querySelectorAll('#tierLegend li').length")) === 6);
+  if (API) {
+    check("nickname field is offered, with no label line above it", await ev("!document.querySelector('#nameBar').hidden && document.querySelector('#playerName').value === '' && document.querySelector('#playerName').placeholder === 'Nickname' && !/leaderboard|optional/i.test(document.querySelector('#nameBar').innerText)"));
+    // the test window is wide, so the board is the roadside billboard: left of the column, risen above it, ten places
+    const lay = await ev("(() => { const b = document.querySelector('#introBoard .board-face').getBoundingClientRect(), c = document.querySelector('#startBtn').getBoundingClientRect(), d = document.querySelector('.deck').getBoundingClientRect(); return { wide: innerWidth >= 1240, right: b.right, colLeft: c.left, left: b.left, top: b.top, deckTop: d.top, width: b.width, places: document.querySelectorAll('#introBoard .lb-rows li').length, shown: [...document.querySelectorAll('#introBoard .lb-rows li.open')].filter((li) => li.offsetHeight > 0).length }; })()");
+    check("wide screen: the board stands in the left margin, rising above the column, with ten open places", lay.wide && lay.right < lay.colLeft && lay.left > 0 && lay.top < lay.deckTop - 100 && lay.width >= 260 && lay.places === 10 && lay.shown === 10, JSON.stringify(lay));
+    const emptyBoard = await ev("document.querySelector('#introBoard .lb-face').innerText.split(/[^A-Za-z0-9']+/).filter(Boolean).join(' ')");
+    check("intro board is shown with nothing on it but its title and ten numbered places", await ev("!document.querySelector('#introBoard').hidden && document.querySelectorAll('#introBoard .lb-rows li:not(.open)').length === 0") && /^today's top 10 1 2 3 4 5 6 7 8 9 10$/i.test(emptyBoard), emptyBoard);
+    await ev("document.querySelector('#playerName').value = '<b>bold</b>'");
+    await ev("document.querySelector('#startBtn').click()");
+    await sleep(300);
+    check("a name with odd characters is caught before the round starts", (await screen()) === "intro" && /Use letters, numbers/.test(await q("#nameMsg")), await q("#nameMsg"));
+    await ev(`document.querySelector('#playerName').value = '  ${PLAYER}  '`);
+  } else {
+    check("no server: no name field and no board", await ev("document.querySelector('#nameBar').hidden && document.querySelector('#introBoard').hidden"));
+  }
   await ev("document.querySelector('#startBtn').click()");
   await sleep(400);
   check("start goes to game", (await screen()) === "game");
@@ -209,6 +235,12 @@ try {
     await sleep(500);
     check("real tally of one player keeps the title without a player count", /^Ahead of .* of today's players$/.test(await q(".dist-title")), await q(".dist-title"));
     check("first result shows no note under the curve", await ev("document.querySelector('.dist-note').hidden && document.querySelector('.dist-note').textContent === ''"));
+    const mine = await ev("(() => { const rows = [...document.querySelectorAll('#finalBoard .lb-rows li:not(.open)')]; const me = rows.filter((li) => li.classList.contains('me')); return { rows: rows.length, me: me.length, rank: me[0]?.querySelector('.lb-rank').textContent, name: me[0]?.querySelector('.lb-name').firstChild.textContent, tag: me[0]?.querySelector('.lb-you')?.textContent, val: me[0]?.querySelector('.lb-val').textContent }; })()");
+    check("the board lists the player first, under the tidied name, at the valuation on the billboard", mine.rows === 1 && mine.me === 1 && mine.rank === "1" && mine.name === PLAYER && mine.tag === "You" && mine.val === (await q("#finalVal")), JSON.stringify(mine));
+    check("a named result gets no name form", await ev("document.querySelector('#addName').hidden"));
+    check("the name is remembered for tomorrow", (await ev("localStorage.getItem('sloprillion:name')")) === PLAYER);
+  } else {
+    check("no server: no board on the results screen", await ev("document.querySelector('#finalBoard').hidden && document.querySelector('#addName').hidden"));
   }
   check("distribution curve is drawn", await ev("!!document.querySelector('.dist-plot svg .dist-line') && /Ahead of/.test(document.querySelector('.dist-title').textContent)"), await q(".dist-title"));
   const box = await ev("(() => { const r = document.querySelector('.dist-plot').getBoundingClientRect(); return { x: r.left + r.width * 0.3, y: r.top + r.height * 0.6 }; })()");
@@ -256,7 +288,8 @@ try {
   check("practice note is only the practice sentence", (await q(".dist-note")) === "This was a practice run, so it is not counted.", await q(".dist-note"));
   if (API) {
     await sleep(500);
-    check("replay made no network calls", netCount === netBeforeReplay, `${netCount - netBeforeReplay} requests`);
+    check("replay sent nothing to the server but a read of the board", netCount === netBeforeReplay, `${netCount - netBeforeReplay} requests`);
+    check("practice final shows the board with the first result's row, and no name form", (await ev("document.querySelectorAll('#finalBoard .lb-rows li.me').length")) === 1 && await ev("document.querySelector('#addName').hidden"));
     const after = await apiGet(`/v1/dist?date=${round.date}`);
     check("replay did not reach the day's tally", after.players === 1, `players ${after.players}`);
   }
@@ -265,7 +298,46 @@ try {
   await sleep(2000);
   check("replay leaves the first result saved", (await screen()) === "final" && (await q("#finalPts")) === `${total} of 700 points` && practiceTotal !== `${total} of 700 points`, `${await q("#finalPts")} (practice was ${practiceTotal})`);
   check("first result's note has no practice wording", !/practice/.test(await q(".dist-note")));
+  if (API) check("a reload still shows the player's row on the board", (await ev("document.querySelectorAll('#finalBoard .lb-rows li.me').length")) === 1);
   await ev("localStorage.clear()");
+
+  if (API) {
+    // a second player skips the name, then adds one from the results screen
+    await send("Page.navigate", { url: PAGE });
+    await sleep(2000);
+    check("the next visitor sees the first player on the intro board", (await ev("document.querySelectorAll('#introBoard .lb-rows li:not(.open)').length")) === 1 && (await ev("document.querySelectorAll('#introBoard .lb-rows li.me').length")) === 0 && (await q("#introBoard .lb-name")) === PLAYER, await q("#introBoard .lb-name"));
+    await shot("e2e-intro-board");
+    await ev("document.querySelector('#startBtn').click()");
+    await sleep(400);
+    for (let r = 0; r < 7; r++) {
+      await ev("document.querySelector('#answer').value = ''");
+      await type(round.prompts[r].answers[0].a);
+      await enter();
+      await sleep(1700);
+      await ev("document.querySelector('#nextBtn').click()");
+      await sleep(350);
+    }
+    await sleep(900);
+    check("an unnamed result is not on the board and is offered the name form", (await screen()) === "final" && (await ev("document.querySelectorAll('#finalBoard .lb-rows li.me').length")) === 0 && await ev("!document.querySelector('#addName').hidden"));
+    const addName = async (text) => {
+      await ev(`document.querySelector('#addNameInput').value = ${JSON.stringify(text)}`);
+      await ev("document.querySelector('#addNameBtn').click()");
+      await sleep(700);
+    };
+    await addName("");
+    check("an empty name is asked for", /Type a name first/.test(await q("#addNameMsg")), await q("#addNameMsg"));
+    await addName(BLOCKED_NAME);
+    check("a name the server refuses stays off the board, with the reason", /can't go on the board/.test(await q("#addNameMsg")) && (await ev("document.querySelectorAll('#finalBoard .lb-rows li:not(.open)').length")) === 1 && await ev("!document.querySelector('#addName').hidden"), await q("#addNameMsg"));
+    await addName("Late Joiner");
+    const two = await ev("[...document.querySelectorAll('#finalBoard .lb-rows li:not(.open)')].map((li) => [li.querySelector('.lb-rank').textContent, li.querySelector('.lb-name').firstChild.textContent, li.classList.contains('me')])");
+    check("adding a name afterwards puts the result on the board, ranked by score", two.length === 2 && two.filter((r) => r[2]).length === 1 && two.find((r) => r[2])[1] === "Late Joiner" && await ev("document.querySelector('#addName').hidden"), JSON.stringify(two));
+    await ev("document.querySelector('#finalBoard').scrollIntoView({ block: 'center' })");
+    await sleep(200);
+    await shot("e2e-final-board");
+    const tally = await apiGet(`/v1/dist?date=${round.date}`);
+    check("adding a name did not count the player twice", tally.players === 2, `players ${tally.players}`);
+    await ev("localStorage.clear()");
+  }
 
   // ?day=2 loads the second round, and its first prompt answers from the bank
   await send("Page.navigate", { url: PAGE + "&day=2" });
@@ -321,6 +393,8 @@ try {
     check("offline game reaches the final screen", (await screen()) === "final");
     await sleep(800);
     check("offline final draws the curve", await ev("!!document.querySelector('.dist-plot svg .dist-line')"), await q(".dist-title"));
+    const down = await ev("(() => { const b = document.querySelector('#finalBoard'); return { hidden: b.hidden, open: [...b.querySelectorAll('.lb-rows li.open')].filter((li) => li.offsetHeight > 0).length, rows: b.querySelectorAll('.lb-rows li').length, text: b.querySelector('.lb-face').innerText.split(/[^A-Za-z0-9']+/).filter(Boolean).join(' ') }; })()");
+    check("a board that cannot be loaded shows ten blank places and no message", !down.hidden && down.open === 10 && down.rows === 10 && /^today's top 10 1 2 3 4 5 6 7 8 9 10$/i.test(down.text), JSON.stringify(down));
     await ev("localStorage.clear()");
   }
 } catch (e) {

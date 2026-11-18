@@ -72,6 +72,48 @@ export function storeSuite(name, makeStore) {
     assert.equal(dist.counts.length, 71);
   });
 
+  test(`${name}: only a finished session can go on the board, and only once`, async () => {
+    const s = await makeStore(), d = "2034-" + uniq(), sess = "sess" + uniq();
+    assert.equal(await s.postBoard(d, sess, "Ada", 1000), null);
+    assert.equal(await s.getBoardEntry(d, sess), null);
+    await s.finishSession(d, sess, 320);
+    const first = await s.postBoard(d, sess, "Ada", 1000);
+    assert.equal(first.first, true);
+    assert.equal(first.entry.name, "Ada");
+    assert.equal(first.entry.score, 320);
+    const again = await s.postBoard(d, sess, "Grace", 2000);
+    assert.equal(again.first, false);
+    assert.equal(again.entry.name, "Ada");
+    assert.deepEqual(await s.getBoardEntry(d, sess), first.entry);
+    assert.equal((await s.getBoardTop(d, 10)).length, 1);
+  });
+
+  test(`${name}: the board is best score first, earlier finisher first on a tie`, async () => {
+    const s = await makeStore(), d = "2035-" + uniq();
+    const post = async (label, score, at) => {
+      const sess = "sess" + uniq();
+      await s.finishSession(d, sess, score);
+      return (await s.postBoard(d, sess, label, at)).entry;
+    };
+    const low = await post("Low", 90, 1000);
+    const lateTie = await post("LateTie", 400, 3000);
+    const top = await post("Top", 700, 5000);
+    const earlyTie = await post("EarlyTie", 400, 2000);
+    const zero = await post("Zero", 0, 4000);
+    assert.deepEqual((await s.getBoardTop(d, 10)).map((e) => e.name), ["Top", "EarlyTie", "LateTie", "Low", "Zero"]);
+    assert.deepEqual((await s.getBoardTop(d, 2)).map((e) => [e.name, e.score]), [["Top", 700], ["EarlyTie", 400]]);
+    assert.equal(await s.getBoardRank(d, top.key), 1);
+    assert.equal(await s.getBoardRank(d, earlyTie.key), 2);
+    assert.equal(await s.getBoardRank(d, lateTie.key), 3);
+    assert.equal(await s.getBoardRank(d, low.key), 4);
+    assert.equal(await s.getBoardRank(d, zero.key), 5);
+  });
+
+  test(`${name}: an empty day has an empty board`, async () => {
+    const s = await makeStore();
+    assert.deepEqual(await s.getBoardTop("2036-" + uniq(), 10), []);
+  });
+
   test(`${name}: incCount does not throw`, async () => {
     const s = await makeStore();
     await s.incCount("2030-01-01", "p", "foo", "Foo");

@@ -23,7 +23,7 @@ for (const f of readdirSync(join(backend, "src"))) {
 }
 
 // Shared game code, only what the server uses.
-for (const f of ["match.js", "config.js"]) cpSync(join(shared, f), join(dist, f));
+for (const f of ["match.js", "config.js", "name.js"]) cpSync(join(shared, f), join(dist, f));
 // index.js lists the rounds and imports each one, so the round files go with it.
 // Subfolders (authoring leftovers) stay behind.
 for (const f of readdirSync(join(shared, "rounds"), { withFileTypes: true })) {

@@ -5,6 +5,7 @@
 // response { status, headers, body }   (body is a plain object, serialised by the adapter)
 
 import { buildIndex, match, matchWrong } from "../../src/match.js";
+import { cleanName } from "./names.mjs";
 
 const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -26,6 +27,7 @@ const DEFAULTS = {
   judgeSessionCap: 6, // judge calls per session per prompt
   maxAttempts: 12, // attempts per session per prompt
   judgeTimeoutMs: 6000,
+  boardSize: 10, // rows on the day's leaderboard
 };
 
 function validDate(s) {
@@ -116,6 +118,31 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
   async function getDist(req) {
     const r = needDate(req.query?.date ?? new Date(now()).toISOString().slice(0, 10));
     return json(200, await store.getDist(r.date));
+  }
+
+  // The day's leaderboard as a client sees it: the top rows, and where this
+  // session stands if it is on the board. Board keys hold session ids, so
+  // they stay here; `me` marks the caller's own row instead.
+  async function boardFor(date, session) {
+    const [top, mine] = await Promise.all([
+      store.getBoardTop(date, cfg.boardSize),
+      session ? store.getBoardEntry(date, session) : null,
+    ]);
+    let you = null;
+    if (mine) {
+      const at = top.findIndex((x) => x.key === mine.key);
+      you = { rank: at >= 0 ? at + 1 : await store.getBoardRank(date, mine.key), name: mine.name, score: mine.score };
+    }
+    return {
+      top: top.map((x, i) => ({ rank: i + 1, name: x.name, score: x.score, ...(mine && x.key === mine.key ? { me: true } : {}) })),
+      you,
+    };
+  }
+
+  async function getBoard(req) {
+    const r = needDate(req.query?.date ?? new Date(now()).toISOString().slice(0, 10));
+    const session = req.query?.session ? needSession(req.query.session) : null;
+    return json(200, { date: r.date, ...(await boardFor(r.date, session)) });
   }
 
   async function callJudge(args) {
@@ -265,7 +292,17 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     let below = 0;
     for (let i = 0; i < bucket; i++) below += dist.counts[i];
     const ahead = dist.players ? (below + dist.counts[bucket] / 2) / dist.players : 0;
-    return json(200, { score: fin.score, results, dist, ahead });
+    // A name puts the session on the day's leaderboard, once. Finishing again
+    // with a name is how a player who skipped it, or whose name was refused,
+    // gets on the board later; the score is always the one first stored.
+    let nameError;
+    if (b.name != null && b.name !== "") {
+      const name = cleanName(b.name);
+      if (name.ok) await store.postBoard(r.date, session, name.name, now());
+      else nameError = name.reason;
+    }
+    const board = await boardFor(r.date, session);
+    return json(200, { score: fin.score, results, dist, ahead, board, ...(nameError ? { nameError } : {}) });
   }
 
   async function route(req) {
@@ -274,6 +311,7 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     if (method === "OPTIONS") return { status: 204, headers: {}, body: null };
     if (method === "GET" && path === "/v1/round") return getRound(req);
     if (method === "GET" && path === "/v1/dist") return getDist(req);
+    if (method === "GET" && path === "/v1/board") return getBoard(req);
     if (method === "POST" && path === "/v1/answer") return postAnswer(req);
     if (method === "POST" && path === "/v1/finish") return postFinish(req);
     throw new HttpError(404, "not found");

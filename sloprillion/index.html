@@ -41,7 +41,15 @@
   <main class="deck">
 
     <section class="screen" id="intro">
-      <button class="btn btn-go btn-big" id="startBtn" type="button">Start round 1</button>
+      <form id="startForm" novalidate>
+        <div class="namebar" id="nameBar" hidden>
+          <label class="field">
+            <input id="playerName" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Nickname" aria-label="Nickname">
+          </label>
+          <p class="msg" id="nameMsg" role="status" aria-live="polite" hidden></p>
+        </div>
+        <button class="btn btn-go btn-big" id="startBtn" type="submit">Start round 1</button>
+      </form>
 
       <div class="board">
         <div class="lamps" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -55,6 +63,15 @@
         </div>
         <div class="posts" aria-hidden="true"><i></i><i></i></div>
       </div>
+
+      <section class="board lb" id="introBoard" aria-labelledby="introBoardTitle" hidden>
+        <div class="lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="board-face lb-face">
+          <h2 class="board-title" id="introBoardTitle">Today's top 10</h2>
+          <ol class="lb-rows"></ol>
+        </div>
+        <div class="posts" aria-hidden="true"><i></i><i></i></div>
+      </section>
 
       <h2 class="section-title">What an answer is worth</h2>
       <ul class="tiers" id="tierLegend"></ul>
@@ -99,6 +116,25 @@
         <div class="dist-plot"></div>
         <p class="fine dist-note"></p>
       </section>
+
+      <section class="board lb" id="finalBoard" aria-labelledby="finalBoardTitle" hidden>
+        <div class="lamps" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="board-face lb-face">
+          <h3 class="board-title" id="finalBoardTitle">Today's top 10</h3>
+          <ol class="lb-rows"></ol>
+        </div>
+        <div class="posts" aria-hidden="true"><i></i><i></i></div>
+      </section>
+      <form class="addname" id="addName" novalidate hidden>
+        <label class="namebar-label" for="addNameInput">Put your result on the board</label>
+        <div class="entry">
+          <label class="field">
+            <input id="addNameInput" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Nickname">
+          </label>
+          <button class="btn btn-go" id="addNameBtn" type="submit">Add my name</button>
+        </div>
+        <p class="msg" id="addNameMsg" role="status" aria-live="polite" hidden></p>
+      </form>
 
       <ol class="recap" id="recap"></ol>
 
