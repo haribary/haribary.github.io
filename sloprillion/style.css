@@ -74,14 +74,6 @@ ul, ol { list-style: none; padding: 0; }
 #app[data-screen="intro"] .hero { display: block; }
 .wordmark { line-height: 0; }
 #wordmark { width: min(100%, 648px); height: auto; image-rendering: pixelated; }
-.tagline {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 2px 12px 4px;
-  background: var(--ink);
-  font: 400 clamp(24px, 6vw, 34px)/1 var(--display);
-  letter-spacing: 0.02em;
-}
 
 .hud {
   display: none;
