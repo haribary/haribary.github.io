@@ -1,0 +1,203 @@
+[
+ {
+  "a": "EC2-Classic",
+  "verdict": "ok",
+  "source": "https://aws.amazon.com/blogs/aws/ec2-classic-is-retiring-heres-how-to-prepare/"
+ },
+ {
+  "a": "Cloud Directory",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/clouddirectory/latest/developerguide/cloud-directory-availability-change.html"
+ },
+ {
+  "a": "Lookout for Vision",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Mobile Hub",
+  "verdict": "fix-fact",
+  "fact": "Mobile app backend console; shut down on 31 October 2021.",
+  "why": "Lifecycle page gives 31 October 2021, bank says 30.",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Augmented AI",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/maintenance_services.md"
+ },
+ {
+  "a": "Simple AD",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/maintenance_services.md"
+ },
+ {
+  "a": "IoT Analytics",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "IoT Events",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "CodeGuru Security",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/it_it/codeguru/latest/security-ug/end-of-support.html"
+ },
+ {
+  "a": "Lookout for Equipment",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Inspector Classic",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "WorkSpaces Thin Client",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/sunset_services.md"
+ },
+ {
+  "a": "Connect Voice ID",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "SimSpace Weaver",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "IQ",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "RDS Custom for Oracle",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/sunset_services.md"
+ },
+ {
+  "a": "DMS Fleet Advisor",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "WorkSpaces Pool",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/sunset_services.md"
+ },
+ {
+  "a": "Private 5G",
+  "verdict": "fix-fact",
+  "fact": "Managed private mobile network; AWS ended it on 20 May 2025.",
+  "why": "Bank says end of support announced May 2025; lifecycle page says it ended 20 May 2025.",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Service Management Connector",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/sunset_services.md"
+ },
+ {
+  "a": "re:Post Private",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/sunset_services.md"
+ },
+ {
+  "a": "Thinkbox Deadline",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/maintenance_services.md"
+ },
+ {
+  "a": "RTB Fabric",
+  "verdict": "ok",
+  "source": "https://aws.amazon.com/about-aws/whats-new/2025/10/aws-rtb-fabric-generally-available/"
+ },
+ {
+  "a": "Ground Truth Plus",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Backint Agent for SAP ASE",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/sunset_services.md"
+ },
+ {
+  "a": "IoT Things Graph",
+  "verdict": "fix-fact",
+  "fact": "Visual IoT device workflows; AWS ended the service on 9 November 2022.",
+  "why": "TwinMaker pointer unverified; lifecycle page confirms end date.",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Chime",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "CodeCommit",
+  "verdict": "ok",
+  "source": "https://aws.amazon.com/blogs/devops/aws-codecommit-returns-to-general-availability/"
+ },
+ {
+  "a": "Cloud9",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/maintenance_services.md"
+ },
+ {
+  "a": "QLDB",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "Monitron",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/maintenance_services.md"
+ },
+ {
+  "a": "FinSpace",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.md"
+ },
+ {
+  "a": "CloudTrail Lake",
+  "verdict": "ok",
+  "source": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-lake-service-availability-change.html"
+ },
+ {
+  "a": "Cognito Sync",
+  "verdict": "unsure",
+  "why": "Lifecycle page lists maintenance announcement 30 June 2026; AWS doc gives no closing date, so 30 July unconfirmed."
+ },
+ {
+  "a": "Aurora Serverless v1",
+  "verdict": "unsure",
+  "why": "No AWS page fetched confirmed 31 March 2025."
+ },
+ {
+  "a": "Honeycode",
+  "verdict": "unsure",
+  "why": "Could not fetch a source for 29 February 2024."
+ },
+ {
+  "a": "Snowmobile",
+  "verdict": "unsure",
+  "why": "Lifecycle page says ended 14 March 2024 (retired), but 2016 announcement not confirmed."
+ },
+ {
+  "a": "Sumerian",
+  "verdict": "unsure",
+  "why": "Lifecycle shows end of support 1 March 2023; May 2022 new-customer closure not confirmed."
+ },
+ {
+  "a": "App Studio",
+  "verdict": "unsure",
+  "why": "No AWS page fetched for App Studio."
+ }
+]

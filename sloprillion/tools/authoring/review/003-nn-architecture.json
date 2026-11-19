@@ -1,0 +1,265 @@
+[
+ {
+  "a": "Ladder Network",
+  "verdict": "ok",
+  "source": "https://arxiv.org/pdf/1507.02672",
+  "note": "Authors Rasmus et al., NIPS 2015, Curious AI Company affiliation per search result."
+ },
+ {
+  "a": "ZFNet",
+  "verdict": "fix-fact",
+  "fact": "Zeiler and Fergus, 2013; AlexNet refinement behind Clarifai, the ILSVRC 2013 winner.",
+  "why": "Clarifai (Zeiler) won ILSVRC 2013; sources say ZFNet itself did not win.",
+  "source": "https://arxiv.org/abs/1311.2901"
+ },
+ {
+  "a": "SENet",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/ImageNet_Large_Scale_Visual_Recognition_Challenge",
+  "note": "Wikipedia: SENet won ILSVRC 2017; arXiv 1709.01507 is Hu et al. 2017."
+ },
+ {
+  "a": "Perceptron",
+  "verdict": "fix-fact",
+  "fact": "Frank Rosenblatt, Cornell, 1957; his famous paper followed in 1958.",
+  "why": "Wikipedia dates the invention to 1957.",
+  "source": "https://en.wikipedia.org/wiki/Perceptron"
+ },
+ {
+  "a": "Hopfield network",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Hopfield_network"
+ },
+ {
+  "a": "Boltzmann machine",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Boltzmann_machine",
+  "note": "Hinton and Sejnowski 1983; formal paper 1985."
+ },
+ {
+  "a": "Jordan network",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Recurrent_neural_network",
+  "note": "Proposed by Michael Jordan, 1986."
+ },
+ {
+  "a": "MADALINE",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/ADALINE"
+ },
+ {
+  "a": "Dreamer",
+  "verdict": "fix-fact",
+  "fact": "Hafner et al., 2019, learned behaviors by imagining in a latent world model.",
+  "why": "Bank fact has no year; arXiv 1912.01603 is 2019.",
+  "source": "https://arxiv.org/abs/1912.01603"
+ },
+ {
+  "a": "ERNIE",
+  "verdict": "ok",
+  "source": "https://arxiv.org/pdf/1904.09223",
+  "note": "Baidu, arXiv April 2019."
+ },
+ {
+  "a": "ESM",
+  "verdict": "ok",
+  "source": "https://pypi.org/project/fair-esm/",
+  "note": "Meta FAIR, Rives et al. 2019 (search result, not primary)."
+ },
+ {
+  "a": "GraphCast",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2212.12794",
+  "note": "Preprint 2022, Science 2023; lab not shown."
+ },
+ {
+  "a": "FourCastNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2202.11214",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "Pangu-Weather",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2211.02556",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "Jamba",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2403.19887",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "Mixture of Experts",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Mixture_of_experts"
+ },
+ {
+  "a": "LSGAN",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1611.04076"
+ },
+ {
+  "a": "WaveGlow",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1811.00002",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "V-Net",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1606.04797"
+ },
+ {
+  "a": "Res2Net",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1904.01169"
+ },
+ {
+  "a": "Linformer",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2006.04768",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "CenterNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1904.07850"
+ },
+ {
+  "a": "Image GPT",
+  "verdict": "ok",
+  "source": "https://github.com/openai/image-gpt",
+  "note": "OpenAI, ICML 2020 per search results."
+ },
+ {
+  "a": "DeepFM",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1703.04247",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "TabNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1908.07442",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "MobileViT",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2110.02178",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "DeepONet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1910.03193"
+ },
+ {
+  "a": "MelGAN",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1910.06711"
+ },
+ {
+  "a": "FractalNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1605.07648"
+ },
+ {
+  "a": "Evoformer",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/AlphaFold",
+  "note": "Evoformer is the AlphaFold 2 trunk."
+ },
+ {
+  "a": "Mask2Former",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2112.01527"
+ },
+ {
+  "a": "MobileBERT",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2004.02984",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "Wav2Letter",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1609.03193",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "Dual Path Network",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1707.01629"
+ },
+ {
+  "a": "AudioLM",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2209.03143",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "DeepSDF",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1901.05103"
+ },
+ {
+  "a": "CoAtNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2106.04803",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "QRNN",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1611.01576",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "ChebNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1606.09375"
+ },
+ {
+  "a": "TimeSformer",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2102.05095",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "VoxelNet",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1711.06396",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "SigLIP",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/2303.15343",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "ProxylessNAS",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1812.00332",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "Helmholtz machine",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Helmholtz_machine"
+ },
+ {
+  "a": "BEGAN",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1703.10717",
+  "note": "Authors and year confirmed on the fetched arXiv listing; lab not shown there."
+ },
+ {
+  "a": "NICE",
+  "verdict": "ok",
+  "source": "https://arxiv.org/abs/1410.8516"
+ }
+]

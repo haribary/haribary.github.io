@@ -1,7 +1,7 @@
 // Screens and game flow. Rules live in config.js, answer checking in match.js,
 // the street in scene.js.
 
-import { pickRound } from "./rounds/index.js";
+import { calendar, pickByDate, dayNumber, forcedEntry, loadRound } from "./rounds/index.js";
 import {
   ROUND_SECONDS, STAGES, TIERS, BAND_FLEX,
   tierIndex, scalePosition, valuation, multiple, money, companyClass,
@@ -13,6 +13,7 @@ import { estimateDay, fromServer, renderDistribution } from "./dist.js";
 import { renderBoard } from "./board.js";
 import { tidyName, nameProblem } from "./name.js";
 import { createApi } from "./api.js";
+import { localDate, firstVisit, automated } from "./visits.js";
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
@@ -27,11 +28,22 @@ const query = new URLSearchParams(location.search);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const frozen = query.has("freeze"); // dev: hold the clock for screenshots
 
-// Today's round by the player's own calendar; ?day=<round id> forces one.
-const pad2 = (n) => String(n).padStart(2, "0");
-const now0 = new Date();
-const round = pickRound(`${now0.getFullYear()}-${pad2(now0.getMonth() + 1)}-${pad2(now0.getDate())}`, query.get("day"));
-const serverApi = createApi(round, query); // null in local mode: no network calls at all
+// Today's round by the player's own calendar. Once the written rounds run out
+// they come round again, a day at a time, each day with its own board and its
+// own saved result. ?day=<round id> forces a round and plays it under that
+// round's own date, for testing and previews.
+const today = localDate();
+const forced = forcedEntry(query.get("day"));
+const entry = forced || pickByDate(calendar, today);
+const playDate = forced ? forced.date : today; // the day this game counts for
+const dayNo = forced ? forced.id : dayNumber(calendar, today); // "Sloprillion #12"
+const round = await loadRound(entry);
+const serverApi = createApi(playDate, query); // null in local mode: no network calls at all
+
+// Where this player came from (see visits.js): settled on the first visit of
+// the day, counted once, and sent again with the finished game.
+const source = firstVisit("game", playDate, location.pathname);
+if (serverApi && source.first && !automated()) serverApi.visit(source.src);
 // Only the first game of the day reaches the server: the server locks each
 // prompt per session for the day, so a replay is a practice run played locally.
 let practice = false;
@@ -39,7 +51,20 @@ const net = () => (practice ? null : serverApi);
 
 const prompts = round.prompts.map((p) => ({ ...p, index: buildIndex(p) }));
 const N = prompts.length;
-const SAVE_KEY = `sloprillion:round:${round.id}`;
+// The finished game is kept per day. Older saves sat under the round's id:
+// carry that one over if it is for today, and drop saves from past days.
+const SAVE_PREFIX = "sloprillion:day:";
+const SAVE_KEY = SAVE_PREFIX + playDate;
+try {
+  const legacy = `sloprillion:round:${round.id}`, old = localStorage.getItem(legacy);
+  if (old && playDate === entry.date) {
+    if (!localStorage.getItem(SAVE_KEY)) localStorage.setItem(SAVE_KEY, old);
+    localStorage.removeItem(legacy);
+  }
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith(SAVE_PREFIX) && key !== SAVE_KEY && key.slice(SAVE_PREFIX.length) < today) localStorage.removeItem(key);
+  }
+} catch { /* storage blocked: nothing to carry over */ }
 
 const scene = createScene($("#scene"), { reduced });
 drawWordmark($("#wordmark"));
@@ -54,9 +79,12 @@ function setScreen(name) {
   scene.resize();
 }
 
+// A preview of a round whose day has not come (?day=) is not kept: the save
+// would stand in for the real game when that day arrives.
+const keep = !(forced && forced.date > today);
 const store = {
   get() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { return null; } },
-  set(v) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(v)); } catch { /* private mode: play on without saving */ } },
+  set(v) { if (keep) try { localStorage.setItem(SAVE_KEY, JSON.stringify(v)); } catch { /* private mode: play on without saving */ } },
   clear() { try { localStorage.removeItem(SAVE_KEY); } catch { /* nothing to clear */ } },
 };
 
@@ -108,7 +136,7 @@ function showIntro() {
   state.phase = "intro";
   setScreen("intro");
   scene.goTo(0, true);
-  $("#startBtn").textContent = `Start round ${round.id}`;
+  $("#startBtn").textContent = `Start round ${dayNo}`;
   // The board and the name on it need the server; without one neither is shown.
   if (serverApi) {
     $("#nameBar").hidden = false;
@@ -376,7 +404,7 @@ function showFinal(save) {
   $("#addName").hidden = true;
   if (serverApi) renderBoard($("#finalBoard"), null);
   if (save && api) {
-    api.finish(runName).then((r) => {
+    api.finish(runName, source.src).then((r) => {
       if (!r) { loadFinalBoard(); return; }
       // The score on screen stays the one computed here; a mismatch is a bug worth hearing about.
       if (r.score !== score) console.warn(`sloprillion: server scored ${r.score}, page scored ${score}`);
@@ -416,7 +444,7 @@ async function addName(e) {
   say(note, problem && NAME_HELP[problem]);
   if (problem) { field.focus(); return; }
   btn.disabled = true;
-  const r = await serverApi.finish(name);
+  const r = await serverApi.finish(name, source.src);
   btn.disabled = false;
   if (!r) { say(note, "The leaderboard can't be reached right now. Try again."); return; }
   if (!r.nameError) keptName.set(name);
@@ -425,7 +453,7 @@ async function addName(e) {
 
 function shareText() {
   const grid = prompts.map((_, k) => TIERS[state.results[k] ? state.results[k].tier : 0].emoji).join("");
-  return `Sloprillion #${round.id}\n${money(valuation(state.score))} valuation, ${companyClass(state.score)} (${state.score}/${N * 100})\n${grid}`;
+  return `Sloprillion #${dayNo}\n${money(valuation(state.score))} valuation, ${companyClass(state.score)} (${state.score}/${N * 100})\n${grid}`;
 }
 
 async function share() {

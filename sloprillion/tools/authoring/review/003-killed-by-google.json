@@ -1,0 +1,18 @@
+[
+{"a":"Gemini CLI","verdict":"fix-fact","fact":"Ran from 2025 to 2026; consumer access ended June 2026, replaced by Antigravity CLI.","why":"Really discontinued for individual users on 2026-06-18 in favor of Antigravity CLI (still usable via paid API keys). Data file lists it as 'Google Gemini (CLI and Code Assist)'.","source":"https://9to5google.com/2026/06/17/gemini-cli-code-assist-shutting-down/"},
+{"a":"Google Notification Widget (Mr. Jingles)","verdict":"fix-fact","fact":"Notification bell mascot Mr. Jingles showed alerts across Google services; ran 2015 to 2019.","why":"Bank calls it an Android widget with a pixel-art mascot; it was the notification bell widget across Google sites, not an Android widget. Years match the data file.","source":"https://www.engadget.com/2019/02/06/google-is-killing-its-notifications-widget/"},
+{"a":"Dark Web Reports","verdict":"ok","source":"https://support.google.com/websearch/answer/16767242"},
+{"a":"Steam for Chromebooks","verdict":"ok","source":"https://www.engadget.com/gaming/steam-for-chromebooks-is-reportedly-being-discontinued-194020340.html"},
+{"a":"Doppl","verdict":"ok","source":"https://jetstream.blog/en/google-doppl-shut-down-end-of-april-2026/"},
+{"a":"Pixel Studio","verdict":"ok","source":"https://9to5google.com/2026/06/05/google-shuts-down-pixel-studio-with-the-latest-app-update/"},
+{"a":"Tables by A120","verdict":"unsure","why":"Data file says closed 2025-12-16; no independent source found."},
+{"a":"Tenor API","verdict":"ok","source":"https://9to5google.com/2026/06/30/google-tenor-api-gif-updates/"},
+{"a":"Chromecast","verdict":"ok","source":"https://www.theverge.com/2024/8/6/24214471/google-chromecast-line-discontinued"},
+{"a":"Google Domains","verdict":"ok","source":"https://9to5google.com/2023/06/15/google-domains-squarespace/"},
+{"a":"Google Goggles","verdict":"ok","source":"https://en.wikipedia.org/wiki/Google_Goggles"},
+{"a":"Songza","verdict":"ok","source":"https://en.wikipedia.org/wiki/Songza"},
+{"a":"Google Currents","verdict":"ok","source":"https://en.wikipedia.org/wiki/Google_Currents_(2011-2013)"},
+{"a":"Google Play Newsstand","verdict":"ok","source":"https://en.wikipedia.org/wiki/Google_Play_Newsstand"},
+{"a":"Noop Programming Language","verdict":"ok","source":"https://en.wikipedia.org/wiki/Noop"},
+{"a":"Google Reader","verdict":"ok","source":"https://en.wikipedia.org/wiki/Google_Reader"}
+]

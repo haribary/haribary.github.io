@@ -1,0 +1,226 @@
+[
+ {
+  "a": "Auroracoin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Auroracoin"
+ },
+ {
+  "a": "Nxt",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Nxt"
+ },
+ {
+  "a": "Verge",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Verge_(cryptocurrency)"
+ },
+ {
+  "a": "SafeMoon",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/SafeMoon"
+ },
+ {
+  "a": "Steem",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Steemit"
+ },
+ {
+  "a": "Olympus",
+  "verdict": "unsure",
+  "why": "CoinGecko confirms 2021 treasury-backed OHM; (3,3) meme not confirmed in fetched page."
+ },
+ {
+  "a": "Primecoin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Primecoin"
+ },
+ {
+  "a": "Vertcoin",
+  "verdict": "unsure",
+  "why": "Wikipedia confirms 2014 launch and GPU/ASIC-resistance but not founder David Muller."
+ },
+ {
+  "a": "Counterparty",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Counterparty_(platform)"
+ },
+ {
+  "a": "Firo",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Firo_(cryptocurrency)"
+ },
+ {
+  "a": "Augur",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Augur_(software)"
+ },
+ {
+  "a": "Zama",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/zama"
+ },
+ {
+  "a": "Gridcoin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Gridcoin"
+ },
+ {
+  "a": "Nervos Network",
+  "verdict": "unsure",
+  "why": "CoinGecko confirms CKB = Common Knowledge Base; 2018 launch not found."
+ },
+ {
+  "a": "LBRY Credits",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/LBRY"
+ },
+ {
+  "a": "Melania Meme",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Fartcoin"
+ },
+ {
+  "a": "Beam",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/beam"
+ },
+ {
+  "a": "Arkham",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Arkham_Intelligence"
+ },
+ {
+  "a": "Fartcoin",
+  "verdict": "unsure",
+  "why": "Oct 2024 Solana launch confirmed on Wikipedia memecoin list; Pump.fun/Truth Terminal detail not found."
+ },
+ {
+  "a": "Sentient",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/sentient"
+ },
+ {
+  "a": "Railgun",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/railgun"
+ },
+ {
+  "a": "MazaCoin",
+  "verdict": "fix-fact",
+  "fact": "Launched in 2014 by Payu Harris as a currency for the Oglala Lakota.",
+  "why": "BTC Oyate Initiative not found; Wikipedia credits Payu Harris and says Oglala Lakota.",
+  "source": "https://en.wikipedia.org/wiki/MazaCoin"
+ },
+ {
+  "a": "Kin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Kin_(cryptocurrency)"
+ },
+ {
+  "a": "Meteora",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/meteora"
+ },
+ {
+  "a": "DeSo",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/DeSo"
+ },
+ {
+  "a": "MobileCoin",
+  "verdict": "fix-fact",
+  "fact": "Privacy coin built into Signal's payments, founded by Josh Goldbard and Shane Glynn.",
+  "why": "Wikipedia: Marlinspike was only an early technical advisor, not a co-founder.",
+  "source": "https://en.wikipedia.org/wiki/MobileCoin"
+ },
+ {
+  "a": "Zebec Network",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/zebec-network"
+ },
+ {
+  "a": "Rollbit Coin",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/rollbit-coin"
+ },
+ {
+  "a": "Chill Guy",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/chill-guy"
+ },
+ {
+  "a": "BTSE Token",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/btse-token"
+ },
+ {
+  "a": "Kamino",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/kamino"
+ },
+ {
+  "a": "Titcoin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Titcoin"
+ },
+ {
+  "a": "GoMining Token",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/gomining-token"
+ },
+ {
+  "a": "Pawthereum",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/pawthereum"
+ },
+ {
+  "a": "Geodnet",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/geodnet"
+ },
+ {
+  "a": "Collector Crypt",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/collector-crypt"
+ },
+ {
+  "a": "Provenance Blockchain",
+  "verdict": "unsure",
+  "why": "No page found confirming Figure, Cosmos SDK, 2018 launch or HASH."
+ },
+ {
+  "a": "MetaDAO",
+  "verdict": "unsure",
+  "why": "No page found; CoinGecko URL 404."
+ },
+ {
+  "a": "Libra",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/$LIBRA_cryptocurrency_scandal"
+ },
+ {
+  "a": "Toncoin",
+  "verdict": "ok",
+  "source": "https://cointelegraph.com/news/the-open-network-ton-native-currency-plans-to-rebrand-to-gram"
+ },
+ {
+  "a": "EOS",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/vaulta"
+ },
+ {
+  "a": "Fantom",
+  "verdict": "unsure",
+  "why": "Sonic rebuild and one-for-one FTM to S swap not confirmed."
+ },
+ {
+  "a": "Maker",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/maker"
+ },
+ {
+  "a": "Polygon",
+  "verdict": "ok",
+  "source": "https://www.coingecko.com/en/coins/polygon-ecosystem-token"
+ }
+]

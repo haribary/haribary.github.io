@@ -17,6 +17,7 @@ export function createMemoryStore() {
   const counts = new Map(); // "date|pid|canonKey" -> { name, n }
   const finished = new Map(); // "date|session" -> score
   const hist = new Map(); // date -> { players, b: number[71] }
+  const sources = new Map(); // date -> Map(source -> { site, game, finished })
 
   const sk = (d, s, p) => `${d}|${s}|${p}`;
 
@@ -133,6 +134,49 @@ export function createMemoryStore() {
       let rank = 1;
       for (const entry of boards.get(date)?.values() || []) if (entry.key < key) rank += 1;
       return rank;
+    },
+
+    // Add one to a day's count for a source label. `kind` is "site" (a visit
+    // to the personal site), "game" (a visit to the game) or "finished" (a
+    // completed game).
+    async addSource(date, kind, src) {
+      const day = sources.get(date) || new Map();
+      sources.set(date, day);
+      const row = day.get(src) || { site: 0, game: 0, finished: 0 };
+      row[kind] += 1;
+      day.set(src, row);
+    },
+
+    // The day's counts: { <source>: { site, game, finished } }.
+    async getSources(date) {
+      const out = {};
+      for (const [src, row] of sources.get(date) || []) out[src] = { ...row };
+      return out;
+    },
+
+    // ---- the owner's views: read-only, never reached by a player ----
+
+    // How many judge calls a day has used.
+    async getJudgeUsed(date) {
+      return budget.get(date) || 0;
+    },
+
+    // Every accepted answer of a day with how often it was given: [{ pid, name, n }].
+    async listCounts(date) {
+      const out = [], prefix = `${date}|`;
+      for (const [k, c] of counts) {
+        if (!k.startsWith(prefix)) continue;
+        const rest = k.slice(prefix.length);
+        out.push({ pid: rest.slice(0, rest.indexOf("|")), name: c.name, n: c.n });
+      }
+      return out;
+    },
+
+    // Every cached verdict for a prompt: [{ key, ...verdict }].
+    async listVerdicts(vk) {
+      const out = [], prefix = `${vk}|`;
+      for (const [k, v] of verdicts) if (k.startsWith(prefix)) out.push({ key: k.slice(prefix.length), ...v });
+      return out;
     },
   };
 }

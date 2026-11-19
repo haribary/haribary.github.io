@@ -1,5 +1,7 @@
 // Local dev server: the app on node:http with the in-memory store, port 8787.
 // Run: node src/local-server.mjs   (JUDGE_PROVIDER=... to enable the judge)
+//      DEMO=1 node src/local-server.mjs   starts with made-up visitors and play (see demo.mjs),
+//      for looking at the owner's page: /sloprillion/stats.html?api=local#key=dev
 
 import http from "node:http";
 import { createApp } from "./app.mjs";
@@ -9,12 +11,15 @@ import { loadRounds, loadJudge, appConfig } from "./wiring.mjs";
 const PORT = Number(process.env.PORT) || 8787;
 const ALLOWED = new Set(["http://localhost:5199", "http://127.0.0.1:5199"]);
 
+const demo = process.env.DEMO ? await import("./demo.mjs") : null;
+const rounds = await loadRounds();
 const app = createApp({
   store: createMemoryStore(),
-  judge: await loadJudge(),
-  rounds: await loadRounds(),
-  config: appConfig(),
+  judge: demo ? demo.demoJudge : await loadJudge(),
+  rounds,
+  config: { statsKey: "dev", ...appConfig() }, // the owner's routes answer to key=dev unless STATS_KEY says otherwise
 });
+if (demo) await demo.seedDemo(app, rounds);
 
 http
   .createServer(async (req, res) => {
@@ -43,4 +48,4 @@ http
     res.writeHead(out.status, { ...out.headers, ...cors });
     res.end(out.body == null ? "" : JSON.stringify(out.body));
   })
-  .listen(PORT, () => console.log(`sloprillion api on http://localhost:${PORT}`));
+  .listen(PORT, () => console.log(`sloprillion api on http://localhost:${PORT}` + (demo ? ", with made-up visitors and play" : "")));

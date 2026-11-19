@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="sloprillion-api" content="https://7cw2o2ymfzusys5clfsg3c6u5m0ncfwu.lambda-url.us-west-2.on.aws">
+<meta name="theme-color" content="#2a2c38">
+<title>Sloprillion backstage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Overpass:wght@400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+<style>
+  .stats { width: min(100%, 880px); margin: 0 auto; padding: 40px 20px 72px; }
+  .stats h1 { font: 400 56px/0.95 var(--display); letter-spacing: 0.01em; }
+  .stats h2 { font: 400 40px/1 var(--display); margin: 0 0 14px; }
+  .stats h3 { font: 800 18px/1.3 var(--ui); }
+  .stats h4 { font: 700 14px/1.3 var(--ui); color: var(--dim); margin-bottom: 4px; }
+  .stats section { margin-top: 56px; scroll-margin-top: 16px; }
+  .stats .lede { color: var(--dim); margin-top: 10px; max-width: 62ch; }
+  .stats .note { color: var(--dim); margin-top: 18px; max-width: 62ch; }
+  .stats .note strong { color: #fff; font-weight: 700; }
+  .stats a { color: var(--lane); font-weight: 700; text-underline-offset: 3px; }
+  .stats a:focus-visible, .stats summary:focus-visible { outline: 3px solid var(--lane); outline-offset: 3px; }
+
+  .keyform { margin-top: 32px; display: grid; gap: 12px; max-width: 420px; }
+  .keyform label { font-weight: 700; }
+  .keyform input { background: var(--ink); border: 3px solid var(--face); padding: 12px 14px; width: 100%; }
+  .keyform input:focus-visible, .stats button:focus-visible { outline: 3px solid var(--lane); outline-offset: 3px; }
+  .stats button { background: var(--sign); border: 3px solid var(--face); padding: 10px 18px; font-weight: 800; cursor: pointer; }
+  .stats button.quiet { background: none; border-color: var(--road-lift); color: var(--dim); font-weight: 600; }
+  .stats button:disabled { opacity: 0.4; cursor: default; }
+  .stats .problem { color: var(--lane); font-weight: 700; }
+
+  .jump { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 26px; }
+
+  /* ---- visitors ---- */
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .tile { background: var(--road-deep); border: 3px solid var(--road-lift); padding: 16px 18px 14px; }
+  .tile b { display: block; font: 400 60px/0.9 var(--display); }
+  .tile span { display: block; margin-top: 6px; font-weight: 700; }
+  .tile small { display: block; margin-top: 2px; color: var(--dim); font-size: 14px; }
+
+  .days { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; margin-top: 26px; }
+  .days th, .days td { padding: 9px 10px; text-align: right; }
+  .days th:first-child, .days td:first-child { text-align: left; }
+  .days thead th { font-weight: 700; color: var(--dim); font-size: 14px; border-bottom: 3px solid var(--road-lift); vertical-align: bottom; }
+  .days tr.day td { border-top: 2px solid var(--road-lift); font-weight: 800; }
+  .days tr.day.quiet td { font-weight: 500; color: var(--dim); }
+  .days tr.src td { padding-top: 3px; padding-bottom: 3px; color: var(--dim); font-size: 14px; }
+  .days tr.src td:first-child { padding-left: 28px; color: #fff; }
+  .days .round { color: var(--dim); font-weight: 500; font-size: 14px; margin-left: 8px; }
+  .scroll { overflow-x: auto; }
+
+  /* ---- the day's play ---- */
+  .picker { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .picker strong { font: 400 32px/1 var(--display); min-width: 11ch; text-align: center; }
+  .names { columns: 2; column-gap: 32px; margin-top: 8px; max-width: 620px; font-variant-numeric: tabular-nums; }
+  .names li { display: flex; gap: 10px; padding: 5px 0; border-bottom: 2px solid var(--road-lift); break-inside: avoid; }
+  .names i { font-style: normal; color: var(--dim); min-width: 2ch; }
+  .names span { flex: 1; overflow-wrap: anywhere; }
+  .block { margin-top: 26px; }
+
+  .asked { border-top: 3px solid var(--road-lift); margin-top: 26px; padding-top: 16px; }
+  .asked > p { color: var(--dim); font-size: 14px; margin-top: 2px; }
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 28px; margin-top: 12px; }
+  .rows li { padding: 4px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 12px; overflow-wrap: anywhere; }
+  .rows b { font-variant-numeric: tabular-nums; }
+  .rows small { grid-column: 1 / -1; color: var(--dim); font-size: 14px; }
+  .rows .pts { color: var(--dim); font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .none { color: var(--dim); font-size: 14px; padding: 4px 0; }
+  .stats details { margin-top: 4px; }
+  .stats summary { cursor: pointer; color: var(--lane); font-weight: 600; font-size: 14px; width: fit-content; }
+
+  /* ---- coming up ---- */
+  .up { background: var(--road-deep); border: 3px solid var(--road-lift); padding: 16px 18px 18px; margin-top: 16px; }
+  .up header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+  .up h3 { font: 400 32px/1 var(--display); }
+  .up .which { color: var(--dim); font-weight: 600; }
+  .up header a { margin-left: auto; }
+  .qs { list-style: decimal; padding-left: 1.5em; margin-top: 12px; display: grid; gap: 12px; }
+  .qs li::marker { color: var(--dim); font-weight: 700; }
+  .qs .q { font-weight: 700; }
+  .qs .cat { color: var(--dim); font-weight: 600; font-size: 14px; margin-left: 8px; white-space: nowrap; }
+  .qs small { display: block; color: var(--dim); font-size: 14px; }
+  .all { columns: 3 190px; column-gap: 28px; margin-top: 8px; font-size: 14px; }
+  .all li { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; break-inside: avoid; overflow-wrap: anywhere; }
+  .all b { color: var(--dim); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .all + h4 { margin-top: 16px; }
+  .barred { font-size: 14px; }
+  .barred li { padding: 2px 0; color: var(--dim); }
+  .barred li b { color: #fff; font-weight: 600; }
+
+  .foot { margin-top: 48px; }
+
+  @media (max-width: 720px) {
+    .cols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .stats h1 { font-size: 44px; }
+    .stats h2 { font-size: 34px; }
+    .tiles { grid-template-columns: 1fr; }
+    .tile b { font-size: 48px; }
+    .names { columns: 1; }
+    .picker strong { order: -1; width: 100%; text-align: left; }
+    .up header a { margin-left: 0; width: 100%; }
+    /* Four columns have to fit a phone: tighter cells, and the first column wraps. */
+    .days th, .days td { padding: 8px 5px; }
+    .days thead th { font-size: 13px; }
+    .days th:first-child, .days td:first-child { overflow-wrap: anywhere; }
+    .days tr.src td:first-child { padding-left: 14px; }
+    .days .round { display: block; margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<main class="stats">
+  <h1>Backstage</h1>
+  <p class="lede">For the site owner: who came by, how the day's round is going, and the rounds coming up.</p>
+
+  <form class="keyform" id="keyForm" hidden>
+    <label for="key">Stats key</label>
+    <input id="key" type="password" autocomplete="current-password" spellcheck="false">
+    <p class="problem" id="keyMsg" role="status" aria-live="polite" hidden></p>
+    <button type="submit">Open the page</button>
+  </form>
+
+  <p class="note" id="loading" hidden>Loading the numbers.</p>
+
+  <div id="page" hidden>
+    <nav class="jump" aria-label="On this page">
+      <a href="#visitors">Visitors</a>
+      <a href="#play">The day's play</a>
+      <a href="#next">Coming up</a>
+    </nav>
+
+    <section id="visitors">
+      <h2>Visitors</h2>
+      <div class="tiles" id="tiles"></div>
+      <div class="scroll">
+        <table class="days">
+          <thead>
+            <tr>
+              <th scope="col">Day, and where visitors came from</th>
+              <th scope="col">Site visitors</th>
+              <th scope="col">Game visitors</th>
+              <th scope="col">Games finished</th>
+            </tr>
+          </thead>
+          <tbody id="days"></tbody>
+        </table>
+      </div>
+      <p class="note">A visitor is one browser on one day, counted without cookies or ids. "direct" means no referring site and no tag on the link; share links as <strong>…/sloprillion/?ref=discord</strong> to see them by name. Days are each visitor's own calendar day.</p>
+    </section>
+
+    <section id="play">
+      <h2>The day's play</h2>
+      <div class="picker">
+        <button class="quiet" id="earlier" type="button">Earlier day</button>
+        <strong id="dayName"></strong>
+        <button class="quiet" id="later" type="button">Later day</button>
+      </div>
+      <div id="dayBody" aria-live="polite"></div>
+    </section>
+
+    <section id="next">
+      <h2>Coming up</h2>
+      <p class="note" id="roundsLeft"></p>
+      <div id="coming"></div>
+    </section>
+
+    <p class="foot"><button class="quiet" id="forget" type="button">Forget the key on this device</button></p>
+  </div>
+</main>
+<script type="module" src="./src/stats.js"></script>
+</body>
+</html>

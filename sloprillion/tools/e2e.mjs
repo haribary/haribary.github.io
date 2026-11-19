@@ -23,14 +23,15 @@ const PORT = Number(process.env.CDP_PORT) || 9300 + Math.floor(Math.random() * 6
 const SITE = process.env.SITE || "http://localhost:5199/sloprillion/";
 const API_PORT = 8787; // what ?api=local means
 // Local mode is forced with ?api=off, because the page itself may name a live server.
-const PAGE = SITE + (API ? "?api=local" : "?api=off");
+// The playthrough is written against round 1, whatever today's round is.
+const PAGE = SITE + (API ? "?api=local" : "?api=off") + "&day=1";
 const CHROME = process.env.CHROME || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const HAS_JUDGE = existsSync(new globalThis.URL("backend/src/judge.mjs", root));
 
 let server = null;
 const startServer = async () => {
   server = spawn(process.execPath, ["backend/src/local-server.mjs"], {
-    cwd: root, stdio: "ignore", env: { ...process.env, PORT: String(API_PORT), ...(HAS_JUDGE ? { JUDGE_PROVIDER: "mock" } : {}) },
+    cwd: root, stdio: "ignore", env: { ...process.env, PORT: String(API_PORT), STATS_KEY: "e2e", PAST_DAYS: "36500", ...(HAS_JUDGE ? { JUDGE_PROVIDER: "mock" } : {}) },
   });
   for (let i = 0; i < 40; i++) {
     try { await fetch(`http://localhost:${API_PORT}/v1/dist`); return; } catch { await new Promise((r) => setTimeout(r, 150)); }
@@ -270,6 +271,20 @@ try {
     if (JUDGED >= 0) check("judge-accepted answer was recorded", jr.pts === 50 && jr.a === "ok mock answer", JSON.stringify(jr));
     const dist = await apiGet(`/v1/dist?date=${round.date}`);
     check("GET /v1/dist shows one player", dist.players === 1 && dist.counts.length === 71 && dist.counts.reduce((a, b) => a + b, 0) === 1, `players ${dist.players}`);
+    // The page is on localhost, so its visits count as "dev". Two of them: this run wiped storage after
+    // its first load, which makes the browser new again; the reload after the game did not count again.
+    const seen = (await apiGet(`/v1/stats?key=e2e&to=${round.date}&days=1`)).days?.[0] || {};
+    check("visits and the finished game are counted under their source",
+      seen.game === 2 && seen.finished === 1 && JSON.stringify(seen.sources) === JSON.stringify([{ src: "dev", site: 0, game: 2, finished: 1 }]), JSON.stringify(seen));
+    check("stats are refused without the key", (await fetch(`http://localhost:${API_PORT}/v1/stats?key=nope`)).status === 404);
+    // the owner's view of the day: one game, the name it went on the board under, and what the judge let in
+    const day = await apiGet(`/v1/day?key=e2e&date=${round.date}`);
+    const given = (day.prompts || []).reduce((sum, p) => sum + p.given, 0), valid = fin.results.filter((x) => x.a).length;
+    check("the owner's day shows the finished game", day.round === round.id && day.players === 1 && day.prompts.length === 7 && given === valid, `players ${day.players}, given ${given}, valid ${valid}`);
+    // The judge's calls are counted against the real (UTC) day, whatever day was played.
+    const used = (await apiGet("/v1/day?key=e2e")).judge?.used;
+    if (JUDGED >= 0) check("and the answer the judge let in", day.prompts[JUDGED].accepted.some((x) => x.a === "ok mock answer" && x.bank === false) && used >= 1, `${JSON.stringify(day.prompts[JUDGED].accepted)}, judge calls today ${used}`);
+    check("the owner's day is refused without the key", (await fetch(`http://localhost:${API_PORT}/v1/day?key=nope`)).status === 404);
   }
 
   // the replay is a practice run: first bank answer of every prompt, entirely local
@@ -340,10 +355,10 @@ try {
   }
 
   // ?day=2 loads the second round, and its first prompt answers from the bank
-  await send("Page.navigate", { url: PAGE + "&day=2" });
+  await send("Page.navigate", { url: PAGE.replace("day=1", "day=2") });
   await sleep(2000);
   await ev("localStorage.clear()");
-  await send("Page.navigate", { url: PAGE + "&day=2" });
+  await send("Page.navigate", { url: PAGE.replace("day=1", "day=2") });
   await sleep(2000);
   check("?day=2 intro names round 2", /round 2/i.test(await q("#startBtn")), await q("#startBtn"));
   await ev("document.querySelector('#startBtn').click()");
@@ -395,6 +410,50 @@ try {
     check("offline final draws the curve", await ev("!!document.querySelector('.dist-plot svg .dist-line')"), await q(".dist-title"));
     const down = await ev("(() => { const b = document.querySelector('#finalBoard'); return { hidden: b.hidden, open: [...b.querySelectorAll('.lb-rows li.open')].filter((li) => li.offsetHeight > 0).length, rows: b.querySelectorAll('.lb-rows li').length, text: b.querySelector('.lb-face').innerText.split(/[^A-Za-z0-9']+/).filter(Boolean).join(' ') }; })()");
     check("a board that cannot be loaded shows ten blank places and no message", !down.hidden && down.open === 10 && down.rows === 10 && /^today's top 10 1 2 3 4 5 6 7 8 9 10$/i.test(down.text), JSON.stringify(down));
+    await ev("localStorage.clear()");
+  }
+
+  // The calendar, seen with the browser's clock moved: a day inside the run of written rounds, the days
+  // after the last one (the rounds come round again and the day number counts on), and a result saved
+  // under the old per-round key being carried over to the per-day one.
+  if (!API) {
+    const { calendar } = await import(new globalThis.URL("src/rounds/index.js", root).href);
+    const roundFile = async (id) => (await import(new globalThis.URL(`src/rounds/${String(id).padStart(3, "0")}.js`, root).href)).default;
+    const plusDays = (date, n) => new Date(Date.parse(date + "T00:00:00Z") + n * 86400000).toISOString().slice(0, 10);
+    const last = calendar[calendar.length - 1], count = calendar.length;
+    // Loads the game with the clock set to noon on `date`; `before` runs first, for seeding storage.
+    const openOn = async (date, before = "") => {
+      const source = `(() => { const Real = Date, shift = new Real(${JSON.stringify(date + "T12:00:00")}).getTime() - Real.now();
+        class Moved extends Real { constructor(...a) { if (a.length) super(...a); else super(Real.now() + shift); } static now() { return Real.now() + shift; } }
+        window.Date = Moved; ${before} })();`;
+      const added = await send("Page.addScriptToEvaluateOnNewDocument", { source });
+      await send("Page.navigate", { url: SITE + "?api=off" });
+      await sleep(1500);
+      await send("Page.removeScriptToEvaluateOnNewDocument", { identifier: added.result.identifier });
+    };
+    const firstPrompt = async () => { await ev("document.querySelector('#startBtn').click()"); await sleep(500); return q(".prompt"); };
+
+    const third = calendar[2], r3 = await roundFile(third.id);
+    await openOn(third.date);
+    check("on a round's own day the page offers that round", (await q("#startBtn")) === `Start round ${third.id}`, await q("#startBtn"));
+    check("and plays its prompts", (await firstPrompt()) === r3.prompts[0].q, await q(".prompt"));
+
+    const r1 = await roundFile(calendar[0].id);
+    await openOn(plusDays(last.date, 1));
+    check("the day after the last round, round 1 comes round again under the next day number",
+      (await q("#startBtn")) === `Start round ${count + 1}` && (await firstPrompt()) === r1.prompts[0].q, `${await q("#startBtn")} / ${await q(".prompt")}`);
+    const r2 = await roundFile(calendar[1].id);
+    await openOn(plusDays(last.date, count + 2));
+    check("a full cycle later the rounds are still turning", (await q("#startBtn")) === `Start round ${2 * count + 2}` && (await firstPrompt()) === r2.prompts[0].q, `${await q("#startBtn")} / ${await q(".prompt")}`);
+
+    const old = JSON.stringify({ score: 70, results: r3.prompts.map((p) => ({ id: p.id, a: p.answers[0].a, pts: 10, tier: 1 })) });
+    await openOn(third.date, `localStorage.clear(); localStorage.setItem("sloprillion:round:${third.id}", ${JSON.stringify(old)}); localStorage.setItem("sloprillion:day:2020-01-01", "{}");`);
+    const keys = await ev("Object.keys(localStorage).filter((k) => /^sloprillion:(day|round):/.test(k)).sort().join(' ')");
+    check("a result saved under the old per-round key is carried over, and stale days are dropped",
+      (await screen()) === "final" && keys === `sloprillion:day:${third.date}`, `${await screen()} / ${keys}`);
+    // The same round a cycle later is a new day: nothing saved, so it can be played again.
+    await openOn(plusDays(last.date, third.id), "");
+    check("the same round on a later day starts fresh", (await screen()) === "intro" && (await q("#startBtn")) === `Start round ${count + third.id}`, `${await screen()} / ${await q("#startBtn")}`);
     await ev("localStorage.clear()");
   }
 } catch (e) {

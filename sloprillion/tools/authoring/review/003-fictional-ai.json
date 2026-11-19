@@ -1,0 +1,341 @@
+[
+ {
+  "a": "HARLIE",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "Primus",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_robots_and_androids"
+ },
+ {
+  "a": "Helen O'Loy",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Helen_O%27Loy"
+ },
+ {
+  "a": "Adam Link",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Adam_Link"
+ },
+ {
+  "a": "Sigfrid von Shrink",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "Rei Toei",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Idoru"
+ },
+ {
+  "a": "Prime Intellect",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "Dors Venabili",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Prelude_to_Foundation"
+ },
+ {
+  "a": "Jocasta",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Jocasta_(comics)"
+ },
+ {
+  "a": "Amazo",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Amazo"
+ },
+ {
+  "a": "Sentinels",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Sentinel_(comics)"
+ },
+ {
+  "a": "Brainiac",
+  "verdict": "fix-fact",
+  "fact": "Alien villain of Superman comics, debuting in Action Comics in 1958.",
+  "why": "Bank says alien android; original 1958 Brainiac was an organic green alien, made a robot in 1964.",
+  "source": "https://en.wikipedia.org/wiki/Brainiac_(character)"
+ },
+ {
+  "a": "Kamelion",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/The_King%27s_Demons"
+ },
+ {
+  "a": "Weebo",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Flubber_(film)"
+ },
+ {
+  "a": "Cherry 2000",
+  "verdict": "fix-fact",
+  "fact": "Android partner in the 1988 film Cherry 2000.",
+  "why": "Wikipedia gives a February 1988 release, not 1987.",
+  "source": "https://en.wikipedia.org/wiki/Cherry_2000"
+ },
+ {
+  "a": "Muffit",
+  "verdict": "ok",
+  "source": "https://slashfilm.com/2162082/battlestar-galactica-muffit-the-daggit-played-chimpanzee"
+ },
+ {
+  "a": "Automan",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Automan"
+ },
+ {
+  "a": "Max",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Flight_of_the_Navigator"
+ },
+ {
+  "a": "Durandal",
+  "verdict": "ok",
+  "source": "https://shacknews.com/article/86369/PfhorTheWin.com"
+ },
+ {
+  "a": "MAGI",
+  "verdict": "ok",
+  "source": "https://wiki.evageeks.org/MAGI"
+ },
+ {
+  "a": "Chachamaru",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Negima!_Magister_Negi_Magi"
+ },
+ {
+  "a": "E-123 Omega",
+  "verdict": "ok",
+  "source": "https://info.sonicretro.org/E-100_series"
+ },
+ {
+  "a": "Pluto",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.com/wiki/Pluto_(manga)"
+ },
+ {
+  "a": "ART",
+  "verdict": "ok",
+  "source": "https://wikipedia.com/wiki/Network_Effect_(novel)"
+ },
+ {
+  "a": "Thunderhead",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Scythe_(novel)"
+ },
+ {
+  "a": "Lovelace",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/The_Long_Way_to_a_Small,_Angry_Planet"
+ },
+ {
+  "a": "Sidra",
+  "verdict": "ok",
+  "source": "https://machinevisionuib.github.io/machine-vision-situation/closed-and-common-orbit-ai-gets-body-kit"
+ },
+ {
+  "a": "Brittle",
+  "verdict": "ok",
+  "source": "https://locusmag.com/2017/09/paul-di-filippo-reviews-c-robert-cargill"
+ },
+ {
+  "a": "Paladin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Autonomous_(novel)"
+ },
+ {
+  "a": "Webmind",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/WWW:_Wake"
+ },
+ {
+  "a": "Klara",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Klara_and_the_Sun"
+ },
+ {
+  "a": "Dorian",
+  "verdict": "ok",
+  "source": "https://wikiwand.com/en/articles/Almost_Human_(TV_series)"
+ },
+ {
+  "a": "Poe",
+  "verdict": "ok",
+  "source": "https://www.hollywoodreporter.com/live-feed/altered-carbon-chris-conner-as-poe-explained-1085098"
+ },
+ {
+  "a": "Mr Smith",
+  "verdict": "ok",
+  "source": "https://tardis.fandom.com/wiki/Mr_Smith"
+ },
+ {
+  "a": "Zane",
+  "verdict": "ok",
+  "source": "https://en.brickimedia.org/wiki/Zane"
+ },
+ {
+  "a": "Goddard",
+  "verdict": "unsure",
+  "why": "Wikipedia list gives Jimmy Neutron: Boy Genius (2001) but the character appeared earlier (1980s demo, 1998 pilot era); \"debuted in 2001\" not confirmed."
+ },
+ {
+  "a": "Proto Man",
+  "verdict": "ok",
+  "source": "https://megaman.fandom.com/wiki/Proto_Man"
+ },
+ {
+  "a": "Delamain",
+  "verdict": "ok",
+  "source": "https://kotaku.com/cyberpunk-2077-quest-delamain-side-job-ai-taxi-netflix-1849683895"
+ },
+ {
+  "a": "Vasco",
+  "verdict": "ok",
+  "source": "https://starfieldwiki.net/wiki/Starfield:Meet_Vasco"
+ },
+ {
+  "a": "ADA",
+  "verdict": "ok",
+  "source": "https://www.pcgamer.com/the-outer-worlds-has-a-yes-man-and-her-name-is-ada"
+ },
+ {
+  "a": "Kikaider",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Android_Kikaider"
+ },
+ {
+  "a": "Talkie Toaster",
+  "verdict": "ok",
+  "source": "https://reddwarf.co.uk/database/mechanicals/talkietoaster"
+ },
+ {
+  "a": "Hex",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "Golem XIV",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "P.A.T.",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "ARIIA",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "Adam",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_robots_and_androids"
+ },
+ {
+  "a": "Johnny Cab",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_robots_and_androids"
+ },
+ {
+  "a": "Bubo",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_robots_and_androids"
+ },
+ {
+  "a": "STEM",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/List_of_fictional_computers"
+ },
+ {
+  "a": "Maximilian",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/The_Black_Hole_(1979_film)"
+ },
+ {
+  "a": "V.I.N.CENT",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/The_Black_Hole_(1979_film)"
+ },
+ {
+  "a": "Luv",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Blade_Runner_2049"
+ },
+ {
+  "a": "Andromeda Ascendant",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Andromeda_(TV_series)"
+ },
+ {
+  "a": "Elohim",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/The_Talos_Principle"
+ },
+ {
+  "a": "Milton",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/The_Talos_Principle"
+ },
+ {
+  "a": "WAU",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Soma_(video_game)"
+ },
+ {
+  "a": "Justice of Toren",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Ancillary_Justice"
+ },
+ {
+  "a": "R. Dorothy Wayneright",
+  "verdict": "unsure",
+  "why": "Anime is 1999 and she is an android, but \"housemaid\" not confirmed on a fetched page."
+ },
+ {
+  "a": "Morpheus",
+  "verdict": "unsure",
+  "why": "Deus Ex (2000) page names Daedalus, Icarus, Helios only; Morpheus not confirmed."
+ },
+ {
+  "a": "Teddy",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ },
+ {
+  "a": "R5-D4",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ },
+ {
+  "a": "M-O",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ },
+ {
+  "a": "D-O",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ },
+ {
+  "a": "4-LOM",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ },
+ {
+  "a": "2-1B",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ },
+ {
+  "a": "Huey, Dewey and Louie",
+  "verdict": "unsure",
+  "why": "Not looked up."
+ }
+]

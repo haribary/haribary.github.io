@@ -36,3 +36,6 @@ __pycache__/
 
 # Raw model outputs from the judge benchmark (results.md is the summary)
 sloprillion/tools/judge-bench/results.json
+
+# Per-prompt answer sets written while authoring a round (the round file is what ships)
+sloprillion/tools/authoring/parts/

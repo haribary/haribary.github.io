@@ -1,0 +1,190 @@
+[
+ {
+  "a": "Hotelling's T-squared",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Hotelling%27s_T-squared_distribution"
+ },
+ {
+  "a": "Johnson SU",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Johnson%27s_SU-distribution"
+ },
+ {
+  "a": "Bingham",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Bingham_distribution"
+ },
+ {
+  "a": "Cantor",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Cantor_distribution"
+ },
+ {
+  "a": "Landau",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Landau_distribution"
+ },
+ {
+  "a": "Continuous Bernoulli",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Continuous_Bernoulli_distribution"
+ },
+ {
+  "a": "Rectified Gaussian",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Rectified_Gaussian_distribution"
+ },
+ {
+  "a": "Matrix t",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Matrix_t-distribution"
+ },
+ {
+  "a": "Pearson Type IV",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Pearson_distribution"
+ },
+ {
+  "a": "Tukey lambda",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Tukey_lambda_distribution"
+ },
+ {
+  "a": "Soliton",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Soliton_distribution"
+ },
+ {
+  "a": "U-quadratic",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/U-quadratic_distribution"
+ },
+ {
+  "a": "Mittag-Leffler",
+  "verdict": "fix-fact",
+  "fact": "Heavy-tailed law on the positive reals defined via the Mittag-Leffler function.",
+  "why": "Article does not describe it as a fractional-calculus waiting time law; it ties it to local times of Markov processes.",
+  "source": "https://en.wikipedia.org/wiki/Mittag-Leffler_distribution"
+ },
+ {
+  "a": "Gauss-Kuzmin",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Gauss%E2%80%93Kuzmin_distribution"
+ },
+ {
+  "a": "Holtsmark",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Holtsmark_distribution"
+ },
+ {
+  "a": "Kent",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Kent_distribution"
+ },
+ {
+  "a": "Parabolic fractal",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Parabolic_fractal_distribution"
+ },
+ {
+  "a": "Linnik",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Geometric_stable_distribution"
+ },
+ {
+  "a": "Fisher's z",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Fisher%27s_z-distribution"
+ },
+ {
+  "a": "LKJ",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/LKJ_distribution"
+ },
+ {
+  "a": "Fisher's noncentral hypergeometric",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Fisher%27s_noncentral_hypergeometric_distribution"
+ },
+ {
+  "a": "Behrens-Fisher",
+  "verdict": "fix-fact",
+  "fact": "Distribution of a mix of two Student t variables, used for means with unequal variances.",
+  "why": "It is the distribution of T2 cos(theta) - T1 sin(theta) from two t variables, not of the difference of means itself.",
+  "source": "https://en.wikipedia.org/wiki/Behrens%E2%80%93Fisher_distribution"
+ },
+ {
+  "a": "Henyey-Greenstein",
+  "verdict": "unsure",
+  "why": "Could not fetch the Wikipedia article or the 1941 paper (404s; search budget exhausted)."
+ },
+ {
+  "a": "Exponential-logarithmic",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Exponential-logarithmic_distribution"
+ },
+ {
+  "a": "Metalog",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Metalog_distribution"
+ },
+ {
+  "a": "Wallenius' noncentral hypergeometric",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Wallenius%27_noncentral_hypergeometric_distribution"
+ },
+ {
+  "a": "Ewens's sampling formula",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Ewens%27s_sampling_formula"
+ },
+ {
+  "a": "Gamma-Gompertz",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Gamma/Gompertz_distribution"
+ },
+ {
+  "a": "Matrix Langevin",
+  "verdict": "fix-fact",
+  "fact": "Distribution on orthonormal frames (Stiefel manifold), generalizing von Mises-Fisher.",
+  "why": "Article places it on the Stiefel manifold of orthonormal p-frames, not orthogonal matrices in general.",
+  "source": "https://en.wikipedia.org/wiki/Matrix_Langevin_distribution"
+ },
+ {
+  "a": "Marshall-Olkin exponential",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Marshall%E2%80%93Olkin_exponential_distribution"
+ },
+ {
+  "a": "Shifted Gompertz",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Shifted_Gompertz_distribution"
+ },
+ {
+  "a": "Wakeby",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Wakeby_distribution"
+ },
+ {
+  "a": "Hartman-Watson",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Hartman%E2%80%93Watson_distribution"
+ },
+ {
+  "a": "Balding-Nichols",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Balding%E2%80%93Nichols_model"
+ },
+ {
+  "a": "Champernowne",
+  "verdict": "fix-fact",
+  "fact": "Symmetric logistic-like law that D. G. Champernowne proposed for the logarithm of income.",
+  "why": "Article says it models log income, not income, and tails are only somewhat heavier than normal.",
+  "source": "https://en.wikipedia.org/wiki/Champernowne_distribution"
+ },
+ {
+  "a": "Dirichlet negative multinomial",
+  "verdict": "ok",
+  "source": "https://en.wikipedia.org/wiki/Dirichlet_negative_multinomial_distribution"
+ }
+]

@@ -4,8 +4,8 @@
 // The rounds are whatever src/rounds/index.js lists, in its order. Reading the
 // folder instead would also pick up index.js itself and any helper next to it.
 export async function loadRounds() {
-  const { rounds } = await import("../../src/rounds/index.js");
-  return [...rounds];
+  const { loadAllRounds } = await import("../../src/rounds/index.js");
+  return loadAllRounds();
 }
 
 // Used when the judge is off or failed to load. It throws rather than
@@ -39,7 +39,10 @@ export async function loadJudge(env = process.env) {
 
 export function appConfig(env = process.env) {
   const cap = Number(env.JUDGE_DAILY_CAP);
-  return Number.isFinite(cap) && cap >= 0 && env.JUDGE_DAILY_CAP !== "" && env.JUDGE_DAILY_CAP != null
-    ? { judgeDailyCap: cap }
-    : {};
+  const past = Number(env.PAST_DAYS);
+  return {
+    ...(env.PAST_DAYS && Number.isFinite(past) && past >= 0 ? { pastDays: past } : {}),
+    ...(Number.isFinite(cap) && cap >= 0 && env.JUDGE_DAILY_CAP !== "" && env.JUDGE_DAILY_CAP != null ? { judgeDailyCap: cap } : {}),
+    ...(env.STATS_KEY ? { statsKey: env.STATS_KEY } : {}),
+  };
 }

@@ -71,6 +71,15 @@ add misspellings.
   Do not add aliases that differ only by an ignored word.
 - An alias must never be able to point at two answers.
 
+### Known wrong answers (optional)
+
+A prompt may also carry `wrong: [{ a, alt?, why }]` after `answers`: things
+players are likely to type that do NOT count, each with a one-sentence reason
+of at most 80 characters that the player is shown at once ("Sold to Amazon for
+$970 million, just under the bar."). Use it for famous near-misses under a
+threshold or rule, about 5 to 15 entries, each reason verified like a fact. A
+wrong entry must not share a name or alias with a real answer.
+
 ## Scoring
 
 `pts` estimates how rarely this audience gives the answer under a 25-second
@@ -86,12 +95,27 @@ clock. It is about familiarity, not importance.
 | 100 | the jackpot | exactly ONE |
 
 Spread scores over the whole range and vary them within a band (not all
-multiples of five). The jackpot should be verifiable and delightfully obscure,
+multiples of five). The 85 to 99 band should hold roughly 12 to 25 percent of
+the set: do not park obscure answers at 84 to avoid writing their facts, since
+that flattens the long tail the game is about. The jackpot should be verifiable and delightfully obscure,
 yet something a real expert could plausibly recall; pick it for fun as well as
 rarity, and make sure a player cannot hit it by accident through a shared
 surname or a generic word. Mind the game theory: answers that are famous for
 being obscure (Ronald Wayne, bogosort, ELIZA) are popular with this audience
 and belong in the middle bands.
+
+## Verify the high scorers
+
+Every answer worth 85 points or more, including the jackpot, must be confirmed
+on a page you actually fetched or a search result you actually read in this
+session: that it exists under that name, that it belongs under your rule, and
+that its fact is right. Obscure entries are where invented or misremembered
+ones hide. If you cannot confirm one, drop it or score it lower without a
+fact. Batch the work: a list page or one search often confirms many entries.
+
+Scratch files (dumps, helper scripts) go in the operating system's temp
+folder under a name with a random suffix, never in the repo; other writers
+are working at the same time.
 
 ## Before you finish
 
@@ -113,3 +137,5 @@ Do not create or change any file other than the one you were given.
 3. The jackpot answer and why.
 4. Sources used for verification.
 5. Judgment calls, anything left out on purpose, and anything you could not verify.
+6. How many of the 85+ answers you confirmed on the web, and a list headed
+   "Please double-check" of entries or facts you are still unsure of (or "none").

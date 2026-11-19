@@ -4,8 +4,11 @@
 // request  { method, path, query: {k: v}, body: string | object | undefined }
 // response { status, headers, body }   (body is a plain object, serialised by the adapter)
 
+import { timingSafeEqual } from "node:crypto";
 import { buildIndex, match, matchWrong } from "../../src/match.js";
+import { pickByDate, dayNumber } from "../../src/rounds/index.js";
 import { cleanName } from "./names.mjs";
+import { cleanSource } from "../../src/source.js";
 
 const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -28,7 +31,18 @@ const DEFAULTS = {
   maxAttempts: 12, // attempts per session per prompt
   judgeTimeoutMs: 6000,
   boardSize: 10, // rows on the day's leaderboard
+  statsKey: "", // what GET /v1/stats must be asked with; empty turns it off
+  pastDays: 7, // how far back a day can still be written to
 };
+
+const DAY_MS = 86400000;
+const WHERE = new Set(["site", "game"]);
+const OWNER_ROWS = 60; // rows per list in the owner's view of a day
+
+function sameText(a, b) {
+  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
+  return x.length === y.length && timingSafeEqual(x, y);
+}
 
 function validDate(s) {
   if (typeof s !== "string" || !DATE_RE.test(s)) return false;
@@ -54,28 +68,31 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
   const sorted = [...rounds].sort((a, b) => (a.date < b.date ? -1 : 1));
   if (!sorted.length) throw new Error("createApp needs at least one round");
 
-  // Per-prompt precomputed data, built once per cold start.
-  const meta = new Map(); // "date/pid" -> { round, p, index, examples, stats, vk }
-  for (const r of sorted) {
-    for (const p of r.prompts) {
-      const byPts = [...p.answers].sort((x, y) => x.pts - y.pts);
-      const lo = byPts[0], hi = byPts[byPts.length - 1];
-      meta.set(`${r.date}/${p.id}`, {
-        round: r,
-        p,
-        index: buildIndex(p),
-        examples: pickExamples(p.answers),
-        stats: { most: { a: lo.a, pts: lo.pts }, rarest: { a: hi.a, pts: hi.pts }, count: p.answers.length },
-        vk: `${r.id}:${p.id}`,
-      });
+  // Per-prompt lookup data, built the first time a round is played, so a cold
+  // start costs the same however many rounds there are.
+  const built = new Map(); // round id -> Map(prompt id -> { round, p, index, examples, stats, vk })
+  function promptMeta(r, pid) {
+    let byPid = built.get(r.id);
+    if (!byPid) {
+      byPid = new Map();
+      for (const p of r.prompts) {
+        const byPts = [...p.answers].sort((x, y) => x.pts - y.pts);
+        const lo = byPts[0], hi = byPts[byPts.length - 1];
+        byPid.set(p.id, {
+          round: r,
+          p,
+          index: buildIndex(p),
+          examples: pickExamples(p.answers),
+          stats: { most: { a: lo.a, pts: lo.pts }, rarest: { a: hi.a, pts: hi.pts }, count: p.answers.length },
+          vk: `${r.id}:${p.id}`,
+        });
+      }
+      built.set(r.id, byPid);
     }
+    return byPid.get(pid);
   }
 
-  function resolveRound(date) {
-    let pick = sorted[0];
-    for (const r of sorted) if (r.date <= date) pick = r;
-    return pick;
-  }
+  const utcDate = (offsetDays = 0) => new Date(now() + offsetDays * DAY_MS).toISOString().slice(0, 10);
 
   const json = (status, body, headers = {}) => ({
     status,
@@ -94,30 +111,47 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     return b;
   }
 
-  function needDate(v) {
+  // A day and the round played on it (see pickByDate: once the rounds run
+  // out they come round again). Everything stored is keyed by the day, not
+  // the round, so a round's second outing starts with a clean board and tally.
+  function needDay(v) {
     if (!validDate(v)) throw bad("date must be YYYY-MM-DD");
-    return resolveRound(v);
+    return { date: v, round: pickByDate(sorted, v) };
+  }
+  // A day that can be written to. Players send their own calendar date, which
+  // is at most a day ahead of UTC: anything later would let a future day's
+  // board be filled in early. Days long past are closed too, so old boards
+  // stay as they ended and nobody can scatter data across the calendar.
+  function needPlayDay(v) {
+    const day = needDay(v);
+    if (day.date > utcDate(1)) throw bad("date is in the future");
+    if (day.date < utcDate(-cfg.pastDays)) throw bad("date is too far in the past");
+    return day;
   }
   function needSession(v) {
     if (typeof v !== "string" || !SESSION_RE.test(v)) throw bad("session must be 8-64 chars of A-Z a-z 0-9 _ -");
     return v;
   }
+  // The owner's routes: without the configured key they do not exist.
+  function needKey(req) {
+    if (!cfg.statsKey || !sameText(req.query?.key ?? "", cfg.statsKey)) throw new HttpError(404, "not found");
+  }
 
   // ---- routes ----
 
   async function getRound(req) {
-    const d = req.query?.date ?? new Date(now()).toISOString().slice(0, 10);
-    const r = needDate(d);
+    const { date, round: r } = needDay(req.query?.date ?? utcDate());
     return json(200, {
       id: r.id,
-      date: r.date,
+      date,
+      day: dayNumber(sorted, date),
       prompts: r.prompts.map(({ id, category, q, note }) => ({ id, category, q, note })),
     }, { "cache-control": "public, max-age=60" });
   }
 
   async function getDist(req) {
-    const r = needDate(req.query?.date ?? new Date(now()).toISOString().slice(0, 10));
-    return json(200, await store.getDist(r.date));
+    const { date } = needDay(req.query?.date ?? utcDate());
+    return json(200, await store.getDist(date));
   }
 
   // The day's leaderboard as a client sees it: the top rows, and where this
@@ -140,9 +174,117 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
   }
 
   async function getBoard(req) {
-    const r = needDate(req.query?.date ?? new Date(now()).toISOString().slice(0, 10));
+    const { date } = needDay(req.query?.date ?? utcDate());
     const session = req.query?.session ? needSession(req.query.session) : null;
-    return json(200, { date: r.date, ...(await boardFor(r.date, session)) });
+    return json(200, { date, ...(await boardFor(date, session)) });
+  }
+
+  // One visit to the personal site or to the game, counted under where it
+  // came from. Nothing about the visitor is stored: no id, no address, no
+  // cookie. The page reports each browser once a day and a count goes up.
+  async function postVisit(req) {
+    const b = parseBody(req);
+    const { date } = needPlayDay(b.date);
+    const where = b.where === undefined ? "game" : b.where;
+    if (!WHERE.has(where)) throw bad('where must be "site" or "game"');
+    const src = cleanSource(b.src);
+    if (!src) throw bad("src must be 1-40 characters of a-z 0-9 . _ -");
+    await store.addSource(date, where, src);
+    return json(200, { ok: true });
+  }
+
+  // The owner's numbers, newest day first: browsers that opened the site and
+  // the game, and games finished, split by source. Asked for with the key the
+  // function was configured with; without one the route does not exist.
+  async function getStats(req) {
+    needKey(req);
+    const to = validDate(req.query?.to) ? req.query.to : utcDate();
+    const count = clamp(Math.floor(Number(req.query?.days)) || 14, 1, 60);
+    const end = Date.parse(to + "T00:00:00Z");
+    const dates = Array.from({ length: count }, (_, i) => new Date(end - i * DAY_MS).toISOString().slice(0, 10));
+    const days = await Promise.all(dates.map(async (date) => {
+      const [bySrc, dist] = await Promise.all([store.getSources(date), store.getDist(date)]);
+      const sources = Object.entries(bySrc)
+        .map(([src, n]) => ({ src, site: n.site, game: n.game, finished: n.finished }))
+        .sort((a, b) => b.site + b.game - (a.site + a.game) || b.finished - a.finished || (a.src < b.src ? -1 : 1));
+      return {
+        date,
+        round: pickByDate(sorted, date).id,
+        site: sources.reduce((n, x) => n + x.site, 0),
+        game: sources.reduce((n, x) => n + x.game, 0),
+        finished: dist.players,
+        sources,
+      };
+    }));
+    return json(200, { days });
+  }
+
+  // The owner's view of one day's play: the board, what players answered and
+  // how often, and what the judge has decided for the round's prompts. Asked
+  // for with the same key as the numbers.
+  async function getDay(req) {
+    needKey(req);
+    const { date, round: r } = needDay(req.query?.date ?? utcDate());
+    const [dist, counts, top, used, ...verdicts] = await Promise.all([
+      store.getDist(date),
+      store.listCounts(date),
+      store.getBoardTop(date, cfg.boardSize),
+      store.getJudgeUsed(date),
+      ...r.prompts.map((p) => store.listVerdicts(`${r.id}:${p.id}`)),
+    ]);
+    const prompts = r.prompts.map((p, i) => {
+      const m = promptMeta(r, p.id);
+      const judged = judgedFor(m, verdicts[i]);
+      const ruled = new Map(judged.accepted.map((x) => [normKey(x.a), x.pts]));
+      const mine = counts.filter((c) => c.pid === p.id);
+      const answers = mine
+        .map(({ name, n }) => {
+          const hit = match(m.index, name);
+          return { a: name, n, pts: hit ? p.answers[hit.i].pts : ruled.get(normKey(name)) ?? null };
+        })
+        .sort((x, y) => y.n - x.n || (x.a < y.a ? -1 : 1));
+      return {
+        id: p.id,
+        q: p.q,
+        given: mine.reduce((sum, c) => sum + c.n, 0),
+        distinct: answers.length,
+        answers: answers.slice(0, OWNER_ROWS),
+        accepted: judged.accepted.slice(0, OWNER_ROWS),
+        refused: judged.refused.slice(0, OWNER_ROWS),
+      };
+    });
+    return json(200, {
+      date,
+      round: r.id,
+      day: dayNumber(sorted, date),
+      players: dist.players,
+      judge: { used, cap: cfg.judgeDailyCap },
+      board: top.map((x, i) => ({ rank: i + 1, name: x.name, score: x.score })),
+      prompts,
+    });
+  }
+
+  // A prompt's cached verdicts as the owner reads them, newest first: the
+  // answers the judge let in (one row per answer, with the spellings players
+  // typed, and whether it landed on an answer the bank already had) and the
+  // ones it turned away. A round keeps its verdicts for every day it is played.
+  function judgedFor(m, list) {
+    const accepted = new Map(), refused = [];
+    for (const v of list) {
+      const at = Number(v.at) || 0, said = String(v.text || v.key);
+      if (!v.valid) {
+        refused.push({ text: said, why: String(v.why || ""), at });
+        continue;
+      }
+      const res = resolveVerdict(m, v);
+      const k = normKey(res.a);
+      const row = accepted.get(k) || { a: res.a, pts: res.pts, bank: res.bank, said: [], at: 0 };
+      if (normKey(said) !== k && !row.said.includes(said) && row.said.length < 8) row.said.push(said);
+      row.at = Math.max(row.at, at);
+      accepted.set(k, row);
+    }
+    const newest = (x, y) => y.at - x.at || (String(x.a || x.text) < String(y.a || y.text) ? -1 : 1);
+    return { accepted: [...accepted.values()].sort(newest), refused: refused.sort(newest) };
   }
 
   async function callJudge(args) {
@@ -175,11 +317,11 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
 
   async function postAnswer(req) {
     const b = parseBody(req);
-    const r = needDate(b.date);
-    const m = meta.get(`${r.date}/${b.promptId}`);
-    if (typeof b.promptId !== "string" || !m) throw new HttpError(404, "unknown prompt");
+    const { date, round: r } = needPlayDay(b.date);
+    const m = typeof b.promptId === "string" ? promptMeta(r, b.promptId) : null;
+    if (!m) throw new HttpError(404, "unknown prompt");
     const session = needSession(b.session);
-    const date = r.date, pid = m.p.id;
+    const pid = m.p.id;
     const timeout = b.timeout === true;
     let text = "";
     if (!timeout) {
@@ -220,7 +362,7 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
         const cached = await store.getVerdict(m.vk, key);
         if (cached) {
           if (cached.valid) final = { ...resolveVerdict(m, cached), how: "cache" };
-        } else if (judgeCalls < cfg.judgeSessionCap && (await store.takeJudgeBudget(date, cfg.judgeDailyCap))) {
+        } else if (judgeCalls < cfg.judgeSessionCap && (await store.takeJudgeBudget(utcDate(), cfg.judgeDailyCap))) {
           usedJudge = true;
           let v = null;
           try {
@@ -248,13 +390,14 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
 
   // Cache a fresh judge verdict and turn it into a final answer (or null).
   async function settleVerdict(m, key, text, v) {
+    // `text` (what was typed) and `at` (when) are kept for the owner's view.
     if (!v.valid) {
-      await store.putVerdict(m.vk, key, { valid: false, canonical: null, pts: 0, why: String(v.why || "").slice(0, 300) });
+      await store.putVerdict(m.vk, key, { valid: false, canonical: null, pts: 0, why: String(v.why || "").slice(0, 300), text, at: now() });
       return null;
     }
     const canonical = String(v.canonical || text).trim().slice(0, 60) || text;
     const pts = clamp(Math.round(Number(v.rarity)), 20, 95);
-    const verdict = { valid: true, canonical, pts, why: String(v.why || "").slice(0, 300) };
+    const verdict = { valid: true, canonical, pts, why: String(v.why || "").slice(0, 300), text, at: now() };
     let res = resolveVerdict(m, verdict);
     if (!res.bank) {
       // Keep a new answer's points stable across spellings: if its canonical
@@ -277,17 +420,26 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
 
   async function postFinish(req) {
     const b = parseBody(req);
-    const r = needDate(b.date);
+    const { date, round: r } = needPlayDay(b.date);
     const session = needSession(b.session);
-    const locked = await store.listLocked(r.date, session);
+    const locked = await store.listLocked(date, session);
     const byPid = new Map(locked.map((x) => [x.pid, x]));
     const results = r.prompts.map((p) => {
       const x = byPid.get(p.id);
       return { promptId: p.id, a: x ? x.a : null, pts: x ? x.pts : 0 };
     });
     const computed = results.reduce((s, x) => s + x.pts, 0);
-    const fin = await store.finishSession(r.date, session, computed);
-    const dist = await store.getDist(r.date);
+    const fin = await store.finishSession(date, session, computed);
+    // Credit the finished game to where the player came from. A page too old
+    // to say counts as "unknown", so the sources still add up to the players.
+    if (fin.first) {
+      try {
+        await store.addSource(date, "finished", cleanSource(b.src) || "unknown");
+      } catch (e) {
+        console.error("sloprillion source count failed:", e?.message); // never worth failing a finish over
+      }
+    }
+    const dist = await store.getDist(date);
     const bucket = clamp(Math.floor(fin.score / 10), 0, 70);
     let below = 0;
     for (let i = 0; i < bucket; i++) below += dist.counts[i];
@@ -298,10 +450,10 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     let nameError;
     if (b.name != null && b.name !== "") {
       const name = cleanName(b.name);
-      if (name.ok) await store.postBoard(r.date, session, name.name, now());
+      if (name.ok) await store.postBoard(date, session, name.name, now());
       else nameError = name.reason;
     }
-    const board = await boardFor(r.date, session);
+    const board = await boardFor(date, session);
     return json(200, { score: fin.score, results, dist, ahead, board, ...(nameError ? { nameError } : {}) });
   }
 
@@ -314,6 +466,9 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     if (method === "GET" && path === "/v1/board") return getBoard(req);
     if (method === "POST" && path === "/v1/answer") return postAnswer(req);
     if (method === "POST" && path === "/v1/finish") return postFinish(req);
+    if (method === "POST" && path === "/v1/visit") return postVisit(req);
+    if (method === "GET" && path === "/v1/stats") return getStats(req);
+    if (method === "GET" && path === "/v1/day") return getDay(req);
     throw new HttpError(404, "not found");
   }
 

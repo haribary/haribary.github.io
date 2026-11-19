@@ -114,6 +114,48 @@ export function storeSuite(name, makeStore) {
     assert.deepEqual(await s.getBoardTop("2036-" + uniq(), 10), []);
   });
 
+  test(`${name}: sources count site visits, game visits and finished games per label, per day`, async () => {
+    const s = await makeStore(), d = "2036-" + uniq(), tag = "t" + uniq();
+    assert.deepEqual(await s.getSources(d), {});
+    await s.addSource(d, "game", "direct");
+    await s.addSource(d, "game", "direct");
+    await s.addSource(d, "site", "direct");
+    await s.addSource(d, "finished", "direct");
+    await s.addSource(d, "site", tag);
+    await s.addSource(d, "finished", "x.com");
+    assert.deepEqual(await s.getSources(d), {
+      direct: { site: 1, game: 2, finished: 1 },
+      [tag]: { site: 1, game: 0, finished: 0 },
+      "x.com": { site: 0, game: 0, finished: 1 },
+    });
+    assert.deepEqual(await s.getSources("2036-" + uniq()), {});
+  });
+
+  test(`${name}: the owner's lists: judge calls used, a day's answer counts, a prompt's verdicts`, async () => {
+    const s = await makeStore(), d = "2036-" + uniq(), vk = "t" + uniq() + ":p", other = "t" + uniq() + ":p";
+    assert.equal(await s.getJudgeUsed(d), 0);
+    await s.takeJudgeBudget(d, 5);
+    await s.takeJudgeBudget(d, 5);
+    assert.equal(await s.getJudgeUsed(d), 2);
+
+    assert.deepEqual(await s.listCounts(d), []);
+    await s.incCount(d, "p-one", "foo", "Foo");
+    await s.incCount(d, "p-one", "foo", "Foo");
+    await s.incCount(d, "p-two", "bar", "Bar");
+    const counts = (await s.listCounts(d)).sort((x, y) => (x.pid < y.pid ? -1 : 1));
+    assert.deepEqual(counts, [{ pid: "p-one", name: "Foo", n: 2 }, { pid: "p-two", name: "Bar", n: 1 }]);
+
+    assert.deepEqual(await s.listVerdicts(vk), []);
+    await s.putVerdict(vk, "abc", { valid: true, canonical: "Abc", pts: 55, why: "ok", text: "A b c", at: 5 });
+    await s.putVerdict(vk, "nope", { valid: false, canonical: null, pts: 0, why: "no" });
+    await s.putVerdict(other, "elsewhere", { valid: false, canonical: null, pts: 0, why: "no" });
+    const list = (await s.listVerdicts(vk)).sort((x, y) => (x.key < y.key ? -1 : 1));
+    assert.deepEqual(list, [
+      { key: "abc", valid: true, canonical: "Abc", pts: 55, why: "ok", text: "A b c", at: 5 },
+      { key: "nope", valid: false, canonical: null, pts: 0, why: "no" },
+    ]);
+  });
+
   test(`${name}: incCount does not throw`, async () => {
     const s = await makeStore();
     await s.incCount("2030-01-01", "p", "foo", "Foo");

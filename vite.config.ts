@@ -11,7 +11,7 @@ import tailwindcss from '@tailwindcss/vite'
  * backend and tools stay out of the site.
  */
 function sloprillionPage(): Plugin {
-  const page = ["index.html", "style.css", "src"]
+  const page = ["index.html", "stats.html", "style.css", "src"]
   let outDir = "dist"
   return {
     name: "sloprillion-page",

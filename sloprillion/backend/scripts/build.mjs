@@ -15,15 +15,15 @@ const dist = join(backend, "dist");
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(join(dist, "rounds"), { recursive: true });
 
-// Backend modules. local-server and the tests are dev only.
+// Backend modules. local-server, its demo data and the tests are dev only.
 for (const f of readdirSync(join(backend, "src"))) {
-  if (!f.endsWith(".mjs") || f === "local-server.mjs") continue;
+  if (!f.endsWith(".mjs") || f === "local-server.mjs" || f === "demo.mjs") continue;
   const code = readFileSync(join(backend, "src", f), "utf8").replaceAll("../../src/", "./");
   writeFileSync(join(dist, f), code);
 }
 
 // Shared game code, only what the server uses.
-for (const f of ["match.js", "config.js", "name.js"]) cpSync(join(shared, f), join(dist, f));
+for (const f of ["match.js", "config.js", "name.js", "source.js"]) cpSync(join(shared, f), join(dist, f));
 // index.js lists the rounds and imports each one, so the round files go with it.
 // Subfolders (authoring leftovers) stay behind.
 for (const f of readdirSync(join(shared, "rounds"), { withFileTypes: true })) {

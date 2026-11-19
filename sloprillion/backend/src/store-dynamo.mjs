@@ -5,10 +5,12 @@
 //   S#<date>#<session>  FIN                 score, ttl            (written once: "finish once")
 //                                           + name, bkey once the session is on the leaderboard
 //   L#<date>            <board key>         name, score, ttl      (leaderboard, best first; see boardKey)
-//   V#<vk>              <normalised text>   verdict cache: valid, canonical, pts, why
+//   V#<vk>              <normalised text>   verdict cache: valid, canonical, pts, why, text, at
 //   C#<date>            <promptId>#<canon>  name, n               (accepted-answer counters)
 //   B#<date>            JUDGE               n, ttl                (daily judge budget)
 //   D#<date>            HIST                players, b0..b70      (finished-score histogram)
+//   R#<date>            SRC                 s:<source>, v:<source>, f:<source>
+//                                           (site visits, game visits and finished games per source)
 //
 // Interface and behaviour match store-memory.mjs; test/store.test.mjs runs the
 // same suite against either (STORE=dynamo TABLE_NAME=... node --test test/).
@@ -16,6 +18,7 @@
 import { boardKey } from "./store-memory.mjs";
 
 const TTL_DAYS = 14;
+const SOURCE_KINDS = { site: "s", game: "v", finished: "f" }; // attribute prefix for each kind of count
 const BUCKETS = 71;
 const ttlFrom = (nowMs) => Math.floor(nowMs / 1000) + TTL_DAYS * 86400;
 
@@ -34,6 +37,23 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
   async function get(key, consistent = false) {
     const r = await send(new ddb.GetItemCommand({ TableName, Key: key, ConsistentRead: consistent }));
     return r.Item ? unmarshall(r.Item) : null;
+  }
+
+  // Every item under one partition key, up to `max`.
+  async function queryAll(pk, max = 2000) {
+    const out = [];
+    let from;
+    do {
+      const r = await send(new ddb.QueryCommand({
+        TableName,
+        KeyConditionExpression: "pk = :pk",
+        ExpressionAttributeValues: M({ ":pk": pk }),
+        ExclusiveStartKey: from,
+      }));
+      for (const it of r.Items || []) out.push(unmarshall(it));
+      from = r.LastEvaluatedKey;
+    } while (from && out.length < max);
+    return out.slice(0, max);
   }
 
   return {
@@ -213,6 +233,49 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
         from = r.LastEvaluatedKey;
       } while (from);
       return ahead + 1;
+    },
+
+    // One item per day holds every source as a pair of top-level counters, so
+    // a visit is one write, the day reads back in one get, and the item size
+    // limit caps how many made-up labels a day can collect. No ttl: the
+    // history is the point.
+    async addSource(date, kind, src) {
+      await send(new ddb.UpdateItemCommand({
+        TableName,
+        Key: M({ pk: `R#${date}`, sk: "SRC" }),
+        UpdateExpression: "ADD #n :one",
+        ExpressionAttributeNames: { "#n": `${SOURCE_KINDS[kind]}:${src}` },
+        ExpressionAttributeValues: M({ ":one": 1 }),
+      }));
+    },
+
+    async getSources(date) {
+      const it = (await get(M({ pk: `R#${date}`, sk: "SRC" }), true)) || {};
+      const out = {};
+      for (const [attr, n] of Object.entries(it)) {
+        const kind = Object.keys(SOURCE_KINDS).find((k) => attr.startsWith(SOURCE_KINDS[k] + ":"));
+        if (!kind) continue;
+        (out[attr.slice(2)] ||= { site: 0, game: 0, finished: 0 })[kind] = n;
+      }
+      return out;
+    },
+
+    // ---- the owner's views: read-only, never reached by a player ----
+
+    async getJudgeUsed(date) {
+      const it = await get(M({ pk: `B#${date}`, sk: "JUDGE" }));
+      return (it && it.n) || 0;
+    },
+
+    async listCounts(date) {
+      return (await queryAll(`C#${date}`)).map((it) => {
+        const cut = it.sk.indexOf("#"); // prompt ids hold no "#"
+        return { pid: it.sk.slice(0, cut), name: it.name, n: it.n || 0 };
+      });
+    },
+
+    async listVerdicts(vk) {
+      return (await queryAll(`V#${vk}`)).map(({ pk, sk, ...v }) => ({ key: sk, ...v }));
     },
   };
 }

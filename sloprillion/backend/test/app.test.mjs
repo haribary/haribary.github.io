@@ -23,6 +23,7 @@ const round = {
 const earlier = { id: 6, date: "2030-05-01", prompts: [{ id: "old", category: "C", q: "Q", note: "", answers: [{ a: "One", pts: 10 }] }] };
 
 const DATE = "2030-05-10";
+const NOW = Date.UTC(2030, 4, 10, 12); // the server's clock: noon UTC on the round's day
 let n = 0;
 const sid = () => "sess" + String(++n).padStart(6, "0");
 
@@ -33,7 +34,7 @@ function setup({ judgeImpl, config } = {}) {
     calls.push(args);
     return judgeImpl ? judgeImpl(args) : { valid: false, canonical: null, rarity: 10, why: "no" };
   };
-  const app = createApp({ store, judge, rounds: [earlier, round], config });
+  const app = createApp({ store, judge, rounds: [earlier, round], config, now: () => NOW });
   const post = async (path, body) => app({ method: "POST", path, body: JSON.stringify(body) });
   const answer = (session, promptId, text, extra = {}) => post("/v1/answer", { date: DATE, promptId, session, text, ...extra });
   return { app, store, calls, post, answer };
@@ -49,12 +50,58 @@ test("round fetch never leaks answers", async () => {
   for (const w of ["Alpha", "Bravo", "\"pts\"", "answers", "fact", "Whiskey", "wrong"]) assert.ok(!s.includes(w), w);
 });
 
-test("round fallback: latest on or before, else earliest", async () => {
+test("the day's round: the latest on or before it, the first for earlier days, and round again after the last", async () => {
   const { app } = setup();
-  const get = (date) => app({ method: "GET", path: "/v1/round", query: { date } });
-  assert.equal((await get("2030-12-31")).body.date, DATE);
-  assert.equal((await get("2030-05-05")).body.date, "2030-05-01");
-  assert.equal((await get("2020-01-01")).body.date, "2030-05-01");
+  const get = async (date) => (await app({ method: "GET", path: "/v1/round", query: { date } })).body;
+  const brief = async (date) => { const r = await get(date); return [r.id, r.date, r.day]; };
+  assert.deepEqual(await brief(DATE), [7, DATE, 2]);
+  assert.deepEqual(await brief("2030-05-05"), [6, "2030-05-05", 1]); // between the two rounds
+  assert.deepEqual(await brief("2020-01-01"), [6, "2020-01-01", 1]); // before the first
+  // After the last round they come round again, oldest first, and the day number counts on.
+  assert.deepEqual(await brief("2030-05-11"), [6, "2030-05-11", 3]);
+  assert.deepEqual(await brief("2030-05-12"), [7, "2030-05-12", 4]);
+  assert.deepEqual(await brief("2030-05-13"), [6, "2030-05-13", 5]);
+  assert.equal((await get("2030-05-12")).prompts[0].id, "p1");
+});
+
+test("a round's second outing has its own tally and board, and reuses cached verdicts", async () => {
+  const store = createMemoryStore();
+  let judged = 0;
+  const judge = async () => { judged++; return { valid: true, canonical: "Foxtrot", rarity: 60, why: "ok" }; };
+  const app = createApp({ store, judge, rounds: [earlier, round], now: () => Date.UTC(2030, 4, 12, 12) });
+  const post = (path, body) => app({ method: "POST", path, body: JSON.stringify(body) });
+  const first = sid(), again = sid();
+  // Round 7 is played on its own date, and again two days later (6, 7, then 6, 7).
+  assert.equal((await post("/v1/answer", { date: DATE, promptId: "p1", session: first, text: "foxtrot" })).body.how, "judge");
+  await post("/v1/finish", { date: DATE, session: first, name: "First" });
+  const r = await post("/v1/answer", { date: "2030-05-12", promptId: "p1", session: again, text: "foxtrot" });
+  assert.equal(r.body.valid, true);
+  assert.equal(r.body.how, "cache");
+  assert.equal(judged, 1);
+  const fin = (await post("/v1/finish", { date: "2030-05-12", session: again, name: "Again" })).body;
+  assert.equal(fin.dist.players, 1);
+  assert.deepEqual(fin.board.top.map((x) => x.name), ["Again"]);
+  const old = (await app({ method: "GET", path: "/v1/board", query: { date: DATE } })).body;
+  assert.deepEqual(old.top.map((x) => x.name), ["First"]);
+  // The day in between belongs to the other round.
+  assert.equal((await post("/v1/answer", { date: "2030-05-11", promptId: "p1", session: sid(), text: "alpha" })).status, 404);
+  assert.equal((await post("/v1/answer", { date: "2030-05-11", promptId: "old", session: sid(), text: "one" })).body.valid, true);
+});
+
+test("a day more than one ahead of UTC cannot be written to; reading it is harmless", async () => {
+  const ctx = setup(); // the clock says noon UTC on 2030-05-10
+  const session = sid();
+  const writes = [["/v1/answer", { promptId: "p1", session, text: "alpha" }], ["/v1/finish", { session }], ["/v1/visit", { src: "x" }]];
+  for (const [path, body] of writes) {
+    const r = await ctx.post(path, { date: "2030-05-12", ...body });
+    assert.equal(r.status, 400, path);
+    assert.match(r.body.error, /future/, path);
+  }
+  assert.equal((await ctx.post("/v1/visit", { date: "2030-05-11", src: "x" })).status, 200); // tomorrow, for someone east of UTC
+  assert.equal((await ctx.answer(session, "p1", "alpha")).body.valid, true); // today still works
+  const ahead = await ctx.app({ method: "GET", path: "/v1/board", query: { date: "2030-05-12" } });
+  assert.equal(ahead.status, 200);
+  assert.deepEqual(ahead.body.top, []);
 });
 
 test("bank hit, alias hit and typo hit", async () => {
@@ -218,6 +265,28 @@ test("daily judge cap", async () => {
   assert.equal(calls.length, 3);
 });
 
+test("the judge budget belongs to the real day, whatever day the player claims", async () => {
+  const { post, calls } = setup({ config: { judgeDailyCap: 3 } });
+  const ask = (date, text) => post("/v1/answer", { date, promptId: date === "2030-05-09" || date === "2030-05-04" ? "old" : "p1", session: sid(), text });
+  // Three allowed days (yesterday, today, tomorrow), one shared budget of three calls.
+  for (const [i, date] of ["2030-05-09", "2030-05-10", "2030-05-11", "2030-05-09", "2030-05-10"].entries()) {
+    assert.equal((await ask(date, "unknown" + i)).status, date === "2030-05-11" ? 404 : 200, date);
+  }
+  assert.equal(calls.length, 3);
+});
+
+test("a day more than a week old is closed to writing", async () => {
+  const ctx = setup(); // the clock says noon UTC on 2030-05-10
+  const session = sid();
+  assert.equal((await ctx.post("/v1/visit", { date: "2030-05-03", src: "x" })).status, 200); // seven days back: still open
+  for (const [path, body] of [["/v1/answer", { promptId: "old", session, text: "one" }], ["/v1/finish", { session }], ["/v1/visit", { src: "x" }]]) {
+    const r = await ctx.post(path, { date: "2030-05-02", ...body });
+    assert.equal(r.status, 400, path);
+    assert.match(r.body.error, /past/, path);
+  }
+  assert.equal((await ctx.app({ method: "GET", path: "/v1/board", query: { date: "2030-05-02" } })).status, 200); // reading is fine
+});
+
 test("accepted answers are counted per canonical name", async () => {
   const { answer, store } = setup();
   await answer(sid(), "p1", "alpha");
@@ -320,7 +389,7 @@ test("input validation and routing errors", async () => {
 test("store failure becomes a plain 500 with no details", async () => {
   const store = createMemoryStore();
   store.getState = async () => { throw new Error("secret table arn"); };
-  const app = createApp({ store, judge: async () => ({}), rounds: [round] });
+  const app = createApp({ store, judge: async () => ({}), rounds: [round], now: () => NOW });
   const orig = console.error;
   console.error = () => {};
   const r = await app({ method: "POST", path: "/v1/answer", body: { date: DATE, promptId: "p1", session: sid(), text: "alpha" } });
@@ -362,12 +431,13 @@ test("a wrong entry that collides with a real answer is dropped and the real ans
   const warned = [];
   const orig = console.warn;
   console.warn = (m) => warned.push(m);
-  let app;
-  try { app = createApp({ store: createMemoryStore(), judge: async () => ({ valid: false }), rounds: [clash] }); } finally { console.warn = orig; }
+  const app = createApp({ store: createMemoryStore(), judge: async () => ({ valid: false }), rounds: [clash], now: () => Date.UTC(2031, 0, 1, 12) });
+  const ask = (text) => app({ method: "POST", path: "/v1/answer", body: { date: "2031-01-01", promptId: "c", session: sid(), text } });
+  let first;
+  try { first = await ask("alpha"); } finally { console.warn = orig; } // the round's tables are built on first use
   assert.equal(warned.length, 1);
   assert.match(warned[0], /"alpha" is both a wrong answer and an answer/);
-  const ask = (text) => app({ method: "POST", path: "/v1/answer", body: { date: "2031-01-01", promptId: "c", session: sid(), text } });
-  assert.equal((await ask("alpha")).body.valid, true);
+  assert.equal(first.body.valid, true);
   assert.equal((await ask("beta")).body.why, "Nope.");
 });
 
@@ -479,4 +549,148 @@ test("GET /v1/board rejects a malformed session and is empty for a quiet day", a
   const quiet = (await board(ctx)).body;
   assert.deepEqual(quiet.top, []);
   assert.equal(quiet.you, null);
+});
+
+// ---- visits, sources and the owner's stats ----
+
+const KEY = "test-stats-key";
+const counted = () => setup({ config: { statsKey: KEY } });
+const stats = async ({ app }, query = {}) => app({ method: "GET", path: "/v1/stats", query: { key: KEY, to: DATE, days: "2", ...query } });
+
+test("visits are counted per day, per part of the site and per source", async () => {
+  const ctx = counted();
+  const visit = (where, src, date = DATE) => ctx.post("/v1/visit", { date, where, src });
+  for (const [where, src] of [["game", "x"], ["game", "x"], ["game", "direct"], ["site", "direct"], ["site", "news.ycombinator.com"]]) {
+    assert.equal((await visit(where, src)).status, 200);
+  }
+  assert.equal((await ctx.post("/v1/visit", { date: DATE, src: "x" })).status, 200); // no `where` means the game
+  await visit("site", "direct", "2030-05-09");
+  const r = await stats(ctx);
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body.days, [
+    {
+      date: DATE, round: 7, site: 2, game: 4, finished: 0,
+      sources: [
+        { src: "x", site: 0, game: 3, finished: 0 },
+        { src: "direct", site: 1, game: 1, finished: 0 },
+        { src: "news.ycombinator.com", site: 1, game: 0, finished: 0 },
+      ],
+    },
+    { date: "2030-05-09", round: 6, site: 1, game: 0, finished: 0, sources: [{ src: "direct", site: 1, game: 0, finished: 0 }] },
+  ]);
+});
+
+test("a visit needs a well-formed source and a part of the site that exists", async () => {
+  const ctx = counted();
+  for (const src of [undefined, "", 7, "has space", "-leading", "<script>", "x".repeat(41)]) {
+    assert.equal((await ctx.post("/v1/visit", { date: DATE, src })).status, 400, String(src));
+  }
+  for (const where of ["blog", "", 3, null]) {
+    assert.equal((await ctx.post("/v1/visit", { date: DATE, where, src: "x" })).status, 400, String(where));
+  }
+  assert.equal((await ctx.post("/v1/visit", { date: DATE, where: "site", src: "  Discord " })).status, 200); // tidied, not refused
+  assert.deepEqual((await stats(ctx)).body.days[0].sources, [{ src: "discord", site: 1, game: 0, finished: 0 }]);
+});
+
+test("a finished game is credited to its source once; no source counts as unknown", async () => {
+  const ctx = counted();
+  const tagged = sid(), plain = sid();
+  await ctx.answer(tagged, "p1", "Echo");
+  await ctx.post("/v1/finish", { date: DATE, session: tagged, src: "x" });
+  await ctx.post("/v1/finish", { date: DATE, session: tagged, src: "x" }); // finishing again adds nothing
+  await ctx.post("/v1/finish", { date: DATE, session: plain, src: "not a label" });
+  const day = (await stats(ctx)).body.days[0];
+  assert.equal(day.finished, 2);
+  assert.deepEqual(day.sources, [
+    { src: "unknown", site: 0, game: 0, finished: 1 },
+    { src: "x", site: 0, game: 0, finished: 1 },
+  ]);
+});
+
+test("a failing source count never fails the finish", async () => {
+  const ctx = setup();
+  ctx.store.addSource = async () => { throw new Error("boom"); };
+  const session = sid();
+  await ctx.answer(session, "p1", "Echo");
+  const orig = console.error;
+  console.error = () => {};
+  const r = await ctx.post("/v1/finish", { date: DATE, session, src: "x" });
+  console.error = orig;
+  assert.equal(r.status, 200);
+  assert.equal(r.body.score, 100);
+});
+
+test("stats need the configured key, and do not exist without one", async () => {
+  const open = setup(); // no key configured
+  assert.equal((await stats(open)).status, 404);
+  const ctx = counted();
+  assert.equal((await stats(ctx, { key: "wrong" })).status, 404);
+  assert.equal((await stats(ctx, { key: "" })).status, 404);
+  assert.equal((await ctx.app({ method: "GET", path: "/v1/stats", query: {} })).status, 404);
+  assert.equal((await stats(ctx)).status, 200);
+  // days: 14 by default, at most 60, newest first, ending today (UTC) unless told otherwise
+  const plain = (await ctx.app({ method: "GET", path: "/v1/stats", query: { key: KEY } })).body.days;
+  assert.equal(plain.length, 14);
+  assert.equal(plain[0].date, DATE);
+  assert.equal(plain[13].date, "2030-04-27");
+  assert.equal((await stats(ctx, { days: "500" })).body.days.length, 60);
+  assert.equal((await stats(ctx, { days: "nonsense" })).body.days.length, 14);
+});
+
+// ---- the owner's view of one day's play ----
+
+const dayView = async ({ app }, query = {}) => app({ method: "GET", path: "/v1/day", query: { key: KEY, date: DATE, ...query } });
+
+test("the owner's day shows the board, what players said, and what the judge decided", async () => {
+  const ctx = setup({
+    config: { statsKey: KEY, judgeDailyCap: 50 },
+    judgeImpl: ({ text }) => {
+      if (/^fox/i.test(text)) return { valid: true, canonical: "Foxtrot", rarity: 66, why: "fits" };
+      if (text === "bravo c") return { valid: true, canonical: "Bravo Charlie", rarity: 30, why: "same thing" };
+      return { valid: false, canonical: null, rarity: 0, why: "Not a thing." };
+    },
+  });
+  const [a, b, c, d, e] = [sid(), sid(), sid(), sid(), sid()];
+  await ctx.answer(a, "p1", "Alpha");
+  await ctx.answer(b, "p1", "a1"); // an alias of Alpha
+  await ctx.answer(c, "p1", "nonsense"); // the judge turns it away
+  await ctx.answer(c, "p1", "foxtrot!"); // a new answer
+  await ctx.answer(d, "p1", "foxtrott"); // the same answer, misspelt: judged again, one row
+  await ctx.answer(e, "p1", "bravo c"); // the judge lands it on an answer the bank has
+  await ctx.answer(a, "p2", "Zulu");
+  await ctx.post("/v1/finish", { date: DATE, session: a, name: "Ada" });
+
+  const r = await dayView(ctx);
+  assert.equal(r.status, 200);
+  assert.equal(r.headers["cache-control"], "no-store");
+  const { prompts, ...head } = r.body;
+  assert.deepEqual(head, { date: DATE, round: 7, day: 2, players: 1, judge: { used: 4, cap: 50 }, board: [{ rank: 1, name: "Ada", score: 25 }] });
+  assert.deepEqual(prompts[0], {
+    id: "p1",
+    q: "Name a thing",
+    given: 5,
+    distinct: 3,
+    answers: [{ a: "Alpha", n: 2, pts: 10 }, { a: "Foxtrot", n: 2, pts: 66 }, { a: "Bravo Charlie", n: 1, pts: 40 }],
+    accepted: [
+      { a: "Bravo Charlie", pts: 40, bank: true, said: ["bravo c"], at: NOW },
+      { a: "Foxtrot", pts: 66, bank: false, said: ["foxtrott"], at: NOW },
+    ],
+    refused: [{ text: "nonsense", why: "Not a thing.", at: NOW }],
+  });
+  assert.deepEqual(prompts[1], { id: "p2", q: "Another", given: 1, distinct: 1, answers: [{ a: "Zulu", n: 1, pts: 15 }], accepted: [], refused: [] });
+  // No session ids, and nothing but the names players chose for the board.
+  for (const s of [a, b, c, d, e]) assert.ok(!JSON.stringify(r.body).includes(s));
+});
+
+test("the owner's day needs the key, and an untouched day reads as empty", async () => {
+  assert.equal((await dayView(setup())).status, 404); // no key configured
+  const ctx = counted();
+  assert.equal((await dayView(ctx, { key: "wrong" })).status, 404);
+  assert.equal((await dayView(ctx, { date: "soon" })).status, 400);
+  const r = await dayView(ctx, { date: "2030-05-02" });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body, {
+    date: "2030-05-02", round: 6, day: 1, players: 0, judge: { used: 0, cap: 2000 }, board: [],
+    prompts: [{ id: "old", q: "Q", given: 0, distinct: 0, answers: [], accepted: [], refused: [] }],
+  });
 });
