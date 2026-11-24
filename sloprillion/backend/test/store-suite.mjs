@@ -1,6 +1,7 @@
 // Behaviour suite shared by every store implementation.
 import test from "node:test";
 import assert from "node:assert/strict";
+import { ALL_TIME } from "../src/store-memory.mjs";
 
 export function storeSuite(name, makeStore) {
   const uniq = () => Math.random().toString(36).slice(2, 10);
@@ -112,6 +113,23 @@ export function storeSuite(name, makeStore) {
   test(`${name}: an empty day has an empty board`, async () => {
     const s = await makeStore();
     assert.deepEqual(await s.getBoardTop("2036-" + uniq(), 10), []);
+  });
+
+  test(`${name}: every entry is also on the all-time board, one per day played`, async () => {
+    const s = await makeStore(), a = "2037-" + uniq(), b = "2037-" + uniq(), sess = "sess" + uniq();
+    await s.finishSession(a, sess, 310);
+    await s.finishSession(b, sess, 420);
+    const first = (await s.postBoard(a, sess, "DayOne", 1000)).entry;
+    const second = (await s.postBoard(b, sess, "DayTwo", 2000)).entry;
+    assert.deepEqual(await s.getBoardTop(a, 10), [first]);
+    assert.deepEqual(await s.getBoardTop(b, 10), [second]);
+    const all = await s.getBoardTop(ALL_TIME, 1000);
+    const mine = all.filter((e) => e.key === first.key || e.key === second.key);
+    assert.deepEqual(mine, [second, first]);
+    assert.equal(await s.getBoardRank(ALL_TIME, first.key), all.findIndex((e) => e.key === first.key) + 1);
+    // Posting again changes neither board.
+    await s.postBoard(a, sess, "Renamed", 3000);
+    assert.equal((await s.getBoardTop(ALL_TIME, 1000)).filter((e) => e.name === "Renamed").length, 0);
   });
 
   test(`${name}: sources count site visits, game visits and finished games per label, per day`, async () => {

@@ -8,6 +8,7 @@ import { timingSafeEqual } from "node:crypto";
 import { buildIndex, match, matchWrong } from "../../src/match.js";
 import { pickByDate, dayNumber } from "../../src/rounds/index.js";
 import { cleanName } from "./names.mjs";
+import { ALL_TIME, ownsBoardKey } from "./store-memory.mjs";
 import { cleanSource } from "../../src/source.js";
 
 const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
@@ -30,7 +31,7 @@ const DEFAULTS = {
   judgeSessionCap: 6, // judge calls per session per prompt
   maxAttempts: 12, // attempts per session per prompt
   judgeTimeoutMs: 6000,
-  boardSize: 10, // rows on the day's leaderboard
+  boardSize: 10, // rows on the leaderboard
   statsKey: "", // what GET /v1/stats must be asked with; empty turns it off
   pastDays: 7, // how far back a day can still be written to
 };
@@ -113,15 +114,15 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
 
   // A day and the round played on it (see pickByDate: once the rounds run
   // out they come round again). Everything stored is keyed by the day, not
-  // the round, so a round's second outing starts with a clean board and tally.
+  // the round, so a round's second outing starts with a clean tally.
   function needDay(v) {
     if (!validDate(v)) throw bad("date must be YYYY-MM-DD");
     return { date: v, round: pickByDate(sorted, v) };
   }
   // A day that can be written to. Players send their own calendar date, which
   // is at most a day ahead of UTC: anything later would let a future day's
-  // board be filled in early. Days long past are closed too, so old boards
-  // stay as they ended and nobody can scatter data across the calendar.
+  // round be played early. Days long past are closed too, so old days stay
+  // as they ended and nobody can scatter data across the calendar.
   function needPlayDay(v) {
     const day = needDay(v);
     if (day.date > utcDate(1)) throw bad("date is in the future");
@@ -154,21 +155,22 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     return json(200, await store.getDist(date));
   }
 
-  // The day's leaderboard as a client sees it: the top rows, and where this
-  // session stands if it is on the board. Board keys hold session ids, so
-  // they stay here; `me` marks the caller's own row instead.
+  // The leaderboard as a client sees it: the top rows of the all-time board,
+  // which holds every day's entries, and where this session's game of `date`
+  // stands if it is on the board. Board keys hold session ids, so they stay
+  // here; `me` marks the caller's own rows, from any day, instead.
   async function boardFor(date, session) {
     const [top, mine] = await Promise.all([
-      store.getBoardTop(date, cfg.boardSize),
+      store.getBoardTop(ALL_TIME, cfg.boardSize),
       session ? store.getBoardEntry(date, session) : null,
     ]);
     let you = null;
     if (mine) {
       const at = top.findIndex((x) => x.key === mine.key);
-      you = { rank: at >= 0 ? at + 1 : await store.getBoardRank(date, mine.key), name: mine.name, score: mine.score };
+      you = { rank: at >= 0 ? at + 1 : await store.getBoardRank(ALL_TIME, mine.key), name: mine.name, score: mine.score };
     }
     return {
-      top: top.map((x, i) => ({ rank: i + 1, name: x.name, score: x.score, ...(mine && x.key === mine.key ? { me: true } : {}) })),
+      top: top.map((x, i) => ({ rank: i + 1, name: x.name, score: x.score, ...(session && ownsBoardKey(session, x.key) ? { me: true } : {}) })),
       you,
     };
   }
@@ -444,7 +446,7 @@ export function createApp({ store, judge, rounds, now = Date.now, config = {} })
     let below = 0;
     for (let i = 0; i < bucket; i++) below += dist.counts[i];
     const ahead = dist.players ? (below + dist.counts[bucket] / 2) / dist.players : 0;
-    // A name puts the session on the day's leaderboard, once. Finishing again
+    // A name puts the day's game on the leaderboard, once. Finishing again
     // with a name is how a player who skipped it, or whose name was refused,
     // gets on the board later; the score is always the one first stored.
     let nameError;

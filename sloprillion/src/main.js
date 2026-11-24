@@ -29,7 +29,7 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const frozen = query.has("freeze"); // dev: hold the clock for screenshots
 
 // Today's round by the player's own calendar. Once the written rounds run out
-// they come round again, a day at a time, each day with its own board and its
+// they come round again, a day at a time, each day with its own tally and its
 // own saved result. ?day=<round id> forces a round and plays it under that
 // round's own date, for testing and previews.
 const today = localDate();
@@ -136,7 +136,6 @@ function showIntro() {
   state.phase = "intro";
   setScreen("intro");
   scene.goTo(0, true);
-  $("#startBtn").textContent = `Start round ${dayNo}`;
   // The board and the name on it need the server; without one neither is shown.
   if (serverApi) {
     $("#nameBar").hidden = false;

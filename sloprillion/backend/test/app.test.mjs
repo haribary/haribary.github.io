@@ -64,7 +64,7 @@ test("the day's round: the latest on or before it, the first for earlier days, a
   assert.equal((await get("2030-05-12")).prompts[0].id, "p1");
 });
 
-test("a round's second outing has its own tally and board, and reuses cached verdicts", async () => {
+test("a round's second outing has its own tally, shares the one board, and reuses cached verdicts", async () => {
   const store = createMemoryStore();
   let judged = 0;
   const judge = async () => { judged++; return { valid: true, canonical: "Foxtrot", rarity: 60, why: "ok" }; };
@@ -80,9 +80,10 @@ test("a round's second outing has its own tally and board, and reuses cached ver
   assert.equal(judged, 1);
   const fin = (await post("/v1/finish", { date: "2030-05-12", session: again, name: "Again" })).body;
   assert.equal(fin.dist.players, 1);
-  assert.deepEqual(fin.board.top.map((x) => x.name), ["Again"]);
+  // Both days' results are on the board, whichever day it is asked for.
+  assert.deepEqual(fin.board.top.map((x) => x.name), ["First", "Again"]);
   const old = (await app({ method: "GET", path: "/v1/board", query: { date: DATE } })).body;
-  assert.deepEqual(old.top.map((x) => x.name), ["First"]);
+  assert.deepEqual(old.top.map((x) => x.name), ["First", "Again"]);
   // The day in between belongs to the other round.
   assert.equal((await post("/v1/answer", { date: "2030-05-11", promptId: "p1", session: sid(), text: "alpha" })).status, 404);
   assert.equal((await post("/v1/answer", { date: "2030-05-11", promptId: "old", session: sid(), text: "one" })).body.valid, true);
@@ -543,12 +544,52 @@ test("ties rank by who finished first", async () => {
   assert.deepEqual(top.map((row) => [row.rank, row.name]), [[1, "Early"], [2, "Later"]]);
 });
 
-test("GET /v1/board rejects a malformed session and is empty for a quiet day", async () => {
+test("GET /v1/board rejects a malformed session and is empty before anyone is on it", async () => {
   const ctx = setup();
   assert.equal((await board(ctx, { session: "no" })).status, 400);
   const quiet = (await board(ctx)).body;
   assert.deepEqual(quiet.top, []);
   assert.equal(quiet.you, null);
+});
+
+test("the board holds every day's results; `you` is the asked day's game and `me` marks the caller's rows from any day", async () => {
+  const store = createMemoryStore();
+  let clock = Date.UTC(2030, 4, 10, 12);
+  const app = createApp({ store, judge: async () => ({ valid: false }), rounds: [earlier, round], config: { boardSize: 3 }, now: () => (clock += 1000) });
+  const post = (path, body) => app({ method: "POST", path, body: JSON.stringify(body) });
+  const get = async (date, session) => (await app({ method: "GET", path: "/v1/board", query: { date, ...(session ? { session } : {}) } })).body;
+  const NEXT = "2030-05-11"; // the day after: the rounds come round again, so this is round 6
+  const finish = async (date, session, name, promptId, text) => {
+    await post("/v1/answer", { date, promptId, session, text });
+    return (await post("/v1/finish", { date, session, name })).body;
+  };
+  const regular = sid(), visitor = sid(), third = sid(), fourth = sid();
+  await finish(DATE, regular, "Regular", "p1", "Echo"); // 100
+  await finish(DATE, visitor, "Visitor", "p1", "Delta Force"); // 70
+  await finish(DATE, third, "Third", "p1", "Bravo Charlie"); // 40
+  clock = Date.UTC(2030, 4, 11, 12);
+  // The same browser plays the next day for 10 points: a second entry of its own, below the listed rows.
+  const next = await finish(NEXT, regular, "Regular", "old", "One");
+  assert.deepEqual(next.board.top, [
+    { rank: 1, name: "Regular", score: 100, me: true },
+    { rank: 2, name: "Visitor", score: 70 },
+    { rank: 3, name: "Third", score: 40 },
+  ]);
+  assert.deepEqual(next.board.you, { rank: 4, name: "Regular", score: 10 });
+  // Asked about the first day, the same board, and `you` is that day's game.
+  assert.deepEqual(await get(DATE, regular), { date: DATE, top: next.board.top, you: { rank: 1, name: "Regular", score: 100 } });
+  // A player with nothing on the board for the asked day has no `you`, even with a row from an earlier day.
+  const before = await get(NEXT, visitor);
+  assert.equal(before.you, null);
+  assert.deepEqual(before.top[1], { rank: 2, name: "Visitor", score: 70, me: true });
+  // A new player the next day lands among the earlier days' results.
+  const late = await finish(NEXT, fourth, "Fourth", "old", "One");
+  assert.deepEqual(late.board.you, { rank: 5, name: "Fourth", score: 10 });
+  assert.deepEqual((await get(NEXT)).top.map((row) => [row.rank, row.name, row.score]), [[1, "Regular", 100], [2, "Visitor", 70], [3, "Third", 40]]);
+  // The owner's view of a day still lists only that day's names.
+  const store2 = (date) => store.getBoardTop(date, 10).then((rows) => rows.map((row) => row.name));
+  assert.deepEqual(await store2(DATE), ["Regular", "Visitor", "Third"]);
+  assert.deepEqual(await store2(NEXT), ["Regular", "Fourth"]);
 });
 
 // ---- visits, sources and the owner's stats ----

@@ -4,7 +4,8 @@
 //   S#<date>#<session>  P#<promptId>        attempts, judgeCalls, locked, a, pts, ttl
 //   S#<date>#<session>  FIN                 score, ttl            (written once: "finish once")
 //                                           + name, bkey once the session is on the leaderboard
-//   L#<date>            <board key>         name, score, ttl      (leaderboard, best first; see boardKey)
+//   L#<date>            <board key>         name, score, ttl      (the day's leaderboard, best first; see boardKey)
+//   L#ALL               <board key>         name, score, date     (every day's entries: the board players see; kept for good)
 //   V#<vk>              <normalised text>   verdict cache: valid, canonical, pts, why, text, at
 //   C#<date>            <promptId>#<canon>  name, n               (accepted-answer counters)
 //   B#<date>            JUDGE               n, ttl                (daily judge budget)
@@ -15,14 +16,16 @@
 // Interface and behaviour match store-memory.mjs; test/store.test.mjs runs the
 // same suite against either (STORE=dynamo TABLE_NAME=... node --test test/).
 
-import { boardKey } from "./store-memory.mjs";
+import { boardKey, ALL_TIME } from "./store-memory.mjs";
 
 const TTL_DAYS = 14;
 const SOURCE_KINDS = { site: "s", game: "v", finished: "f" }; // attribute prefix for each kind of count
 const BUCKETS = 71;
 const ttlFrom = (nowMs) => Math.floor(nowMs / 1000) + TTL_DAYS * 86400;
 
-export async function createDynamoStore({ tableName, client, now = Date.now }) {
+// `allTimeBoard` names the partition the all-time board lives in. Only a test
+// run sets it, so that its entries stay off the board players see.
+export async function createDynamoStore({ tableName, client, now = Date.now, allTimeBoard = ALL_TIME }) {
   const ddb = await import("@aws-sdk/client-dynamodb");
   const { marshall, unmarshall } = await import("@aws-sdk/util-dynamodb");
   const db = client || new ddb.DynamoDBClient({});
@@ -33,6 +36,7 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
   const send = (cmd) => db.send(cmd);
   const isCondFail = (e) => e?.name === "ConditionalCheckFailedException";
   const sKey = (date, session, sk) => M({ pk: `S#${date}#${session}`, sk });
+  const boardPk = (board) => `L#${board === ALL_TIME ? allTimeBoard : board}`; // a date, or ALL_TIME
 
   async function get(key, consistent = false) {
     const r = await send(new ddb.GetItemCommand({ TableName, Key: key, ConsistentRead: consistent }));
@@ -172,7 +176,8 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
     },
 
     // Name the FIN item (only if it has no name yet) and add the leaderboard
-    // item in one transaction, so a session is on the board at most once.
+    // items, the day's and the all-time one, in one transaction, so a day's
+    // game is on each board at most once. The all-time item carries no ttl.
     async postBoard(date, session, name, at) {
       const fin = await get(sKey(date, session, "FIN"), true);
       if (!fin) return null;
@@ -189,7 +194,8 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
               ExpressionAttributeNames: { "#name": "name" },
               ExpressionAttributeValues: M({ ":name": name, ":key": key }),
             } },
-            { Put: { TableName, Item: M({ pk: `L#${date}`, sk: key, name, score: fin.score, ttl: ttl() }) } },
+            { Put: { TableName, Item: M({ pk: boardPk(date), sk: key, name, score: fin.score, ttl: ttl() }) } },
+            { Put: { TableName, Item: M({ pk: boardPk(ALL_TIME), sk: key, name, score: fin.score, date }) } },
           ],
         }));
         return { first: true, entry: { name, score: fin.score, key } };
@@ -206,11 +212,12 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
       return fin?.bkey ? { name: fin.name, score: fin.score, key: fin.bkey } : null;
     },
 
-    async getBoardTop(date, limit) {
+    // `board` is a date, or ALL_TIME.
+    async getBoardTop(board, limit) {
       const r = await send(new ddb.QueryCommand({
         TableName,
         KeyConditionExpression: "pk = :pk",
-        ExpressionAttributeValues: M({ ":pk": `L#${date}` }),
+        ExpressionAttributeValues: M({ ":pk": boardPk(board) }),
         Limit: limit,
         ConsistentRead: true,
       }));
@@ -218,13 +225,13 @@ export async function createDynamoStore({ tableName, client, now = Date.now }) {
     },
 
     // Counts the entries that sort ahead of this one.
-    async getBoardRank(date, key) {
+    async getBoardRank(board, key) {
       let ahead = 0, from;
       do {
         const r = await send(new ddb.QueryCommand({
           TableName,
           KeyConditionExpression: "pk = :pk AND sk < :key",
-          ExpressionAttributeValues: M({ ":pk": `L#${date}`, ":key": key }),
+          ExpressionAttributeValues: M({ ":pk": boardPk(board), ":key": key }),
           Select: "COUNT",
           ConsistentRead: true,
           ExclusiveStartKey: from,

@@ -124,7 +124,7 @@ try {
     const lay = await ev("(() => { const b = document.querySelector('#introBoard .board-face').getBoundingClientRect(), c = document.querySelector('#startBtn').getBoundingClientRect(), d = document.querySelector('.deck').getBoundingClientRect(); return { wide: innerWidth >= 1240, right: b.right, colLeft: c.left, left: b.left, top: b.top, deckTop: d.top, width: b.width, places: document.querySelectorAll('#introBoard .lb-rows li').length, shown: [...document.querySelectorAll('#introBoard .lb-rows li.open')].filter((li) => li.offsetHeight > 0).length }; })()");
     check("wide screen: the board stands in the left margin, rising above the column, with ten open places", lay.wide && lay.right < lay.colLeft && lay.left > 0 && lay.top < lay.deckTop - 100 && lay.width >= 260 && lay.places === 10 && lay.shown === 10, JSON.stringify(lay));
     const emptyBoard = await ev("document.querySelector('#introBoard .lb-face').innerText.split(/[^A-Za-z0-9']+/).filter(Boolean).join(' ')");
-    check("intro board is shown with nothing on it but its title and ten numbered places", await ev("!document.querySelector('#introBoard').hidden && document.querySelectorAll('#introBoard .lb-rows li:not(.open)').length === 0") && /^today's top 10 1 2 3 4 5 6 7 8 9 10$/i.test(emptyBoard), emptyBoard);
+    check("intro board is shown with nothing on it but its title and ten numbered places", await ev("!document.querySelector('#introBoard').hidden && document.querySelectorAll('#introBoard .lb-rows li:not(.open)').length === 0") && /^top 10 1 2 3 4 5 6 7 8 9 10$/i.test(emptyBoard), emptyBoard);
     await ev("document.querySelector('#playerName').value = '<b>bold</b>'");
     await ev("document.querySelector('#startBtn').click()");
     await sleep(300);
@@ -360,7 +360,7 @@ try {
   await ev("localStorage.clear()");
   await send("Page.navigate", { url: PAGE.replace("day=1", "day=2") });
   await sleep(2000);
-  check("?day=2 intro names round 2", /round 2/i.test(await q("#startBtn")), await q("#startBtn"));
+  check("the start button carries no round number", (await q("#startBtn")) === "Start round", await q("#startBtn"));
   await ev("document.querySelector('#startBtn').click()");
   await sleep(400);
   const p2 = round2.prompts[0];
@@ -409,12 +409,12 @@ try {
     await sleep(800);
     check("offline final draws the curve", await ev("!!document.querySelector('.dist-plot svg .dist-line')"), await q(".dist-title"));
     const down = await ev("(() => { const b = document.querySelector('#finalBoard'); return { hidden: b.hidden, open: [...b.querySelectorAll('.lb-rows li.open')].filter((li) => li.offsetHeight > 0).length, rows: b.querySelectorAll('.lb-rows li').length, text: b.querySelector('.lb-face').innerText.split(/[^A-Za-z0-9']+/).filter(Boolean).join(' ') }; })()");
-    check("a board that cannot be loaded shows ten blank places and no message", !down.hidden && down.open === 10 && down.rows === 10 && /^today's top 10 1 2 3 4 5 6 7 8 9 10$/i.test(down.text), JSON.stringify(down));
+    check("a board that cannot be loaded shows ten blank places and no message", !down.hidden && down.open === 10 && down.rows === 10 && /^top 10 1 2 3 4 5 6 7 8 9 10$/i.test(down.text), JSON.stringify(down));
     await ev("localStorage.clear()");
   }
 
   // The calendar, seen with the browser's clock moved: a day inside the run of written rounds, the days
-  // after the last one (the rounds come round again and the day number counts on), and a result saved
+  // after the last one (the rounds come round again), and a result saved
   // under the old per-round key being carried over to the per-day one.
   if (!API) {
     const { calendar } = await import(new globalThis.URL("src/rounds/index.js", root).href);
@@ -435,16 +435,14 @@ try {
 
     const third = calendar[2], r3 = await roundFile(third.id);
     await openOn(third.date);
-    check("on a round's own day the page offers that round", (await q("#startBtn")) === `Start round ${third.id}`, await q("#startBtn"));
-    check("and plays its prompts", (await firstPrompt()) === r3.prompts[0].q, await q(".prompt"));
+    check("on a round's own day the page plays that round's prompts", (await firstPrompt()) === r3.prompts[0].q, await q(".prompt"));
 
     const r1 = await roundFile(calendar[0].id);
     await openOn(plusDays(last.date, 1));
-    check("the day after the last round, round 1 comes round again under the next day number",
-      (await q("#startBtn")) === `Start round ${count + 1}` && (await firstPrompt()) === r1.prompts[0].q, `${await q("#startBtn")} / ${await q(".prompt")}`);
+    check("the day after the last round, round 1 comes round again", (await firstPrompt()) === r1.prompts[0].q, await q(".prompt"));
     const r2 = await roundFile(calendar[1].id);
     await openOn(plusDays(last.date, count + 2));
-    check("a full cycle later the rounds are still turning", (await q("#startBtn")) === `Start round ${2 * count + 2}` && (await firstPrompt()) === r2.prompts[0].q, `${await q("#startBtn")} / ${await q(".prompt")}`);
+    check("a full cycle later the rounds are still turning", (await firstPrompt()) === r2.prompts[0].q, await q(".prompt"));
 
     const old = JSON.stringify({ score: 70, results: r3.prompts.map((p) => ({ id: p.id, a: p.answers[0].a, pts: 10, tier: 1 })) });
     await openOn(third.date, `localStorage.clear(); localStorage.setItem("sloprillion:round:${third.id}", ${JSON.stringify(old)}); localStorage.setItem("sloprillion:day:2020-01-01", "{}");`);
@@ -453,7 +451,7 @@ try {
       (await screen()) === "final" && keys === `sloprillion:day:${third.date}`, `${await screen()} / ${keys}`);
     // The same round a cycle later is a new day: nothing saved, so it can be played again.
     await openOn(plusDays(last.date, third.id), "");
-    check("the same round on a later day starts fresh", (await screen()) === "intro" && (await q("#startBtn")) === `Start round ${count + third.id}`, `${await screen()} / ${await q("#startBtn")}`);
+    check("the same round on a later day starts fresh", (await screen()) === "intro", await screen());
     await ev("localStorage.clear()");
   }
 } catch (e) {

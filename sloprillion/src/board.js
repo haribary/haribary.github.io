@@ -1,6 +1,7 @@
-// The day's leaderboard, drawn on a billboard: ten places, each a name and the
-// valuation it finished at. The player's own row is a lane-yellow band. The
-// stylesheet decides where the billboard stands and whether open places show.
+// The leaderboard, drawn on a billboard: the ten best results of any day, each
+// a name and the valuation it finished at. The player's own rows are lane-yellow
+// bands. The stylesheet decides where the billboard stands and whether open
+// places show.
 
 import { money, valuation } from "./config.js";
 
@@ -32,9 +33,10 @@ function openRow(rank) {
   return li;
 }
 
-// `board` is { top, you } from the server. Without one, because the request is
-// still out or because it failed, the board shows its ten places empty, the
-// same as a day nobody has finished yet. It never carries a message.
+// `board` is { top, you } from the server: the listed rows, and where today's
+// game stands. Without one, because the request is still out or because it
+// failed, the board shows its ten places empty, the same as a board nobody is
+// on yet. It never carries a message.
 export function renderBoard(root, board) {
   const rows = root.querySelector(".lb-rows");
   const top = board && Array.isArray(board.top) ? board.top : [];
@@ -42,6 +44,8 @@ export function renderBoard(root, board) {
   rows.replaceChildren();
   for (const entry of top) rows.append(row(entry, !!entry.me));
   for (let rank = top.length + 1; rank <= PLACES; rank++) rows.append(openRow(rank));
-  // On the board but below the listed rows: shown after a break, with the real rank.
-  if (board && board.you && !top.some((entry) => entry.me)) rows.append(el("li", "lb-gap"), row(board.you, true));
+  // Today's game is on the board but below the listed rows: shown after a
+  // break, with the real rank. (A listed row marked `me` may be an earlier day's.)
+  const listed = board && board.you && top.some((entry) => entry.me && entry.rank === board.you.rank);
+  if (board && board.you && !listed) rows.append(el("li", "lb-gap"), row(board.you, true));
 }

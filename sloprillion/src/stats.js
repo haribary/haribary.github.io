@@ -244,8 +244,8 @@ function fillRound(list, round) {
 function renderComing() {
   const last = calendar[calendar.length - 1], left = daysLeft(calendar, today);
   $("#roundsLeft").textContent = left > 0
-    ? `New rounds are written up to ${longDay(last.date)}: ${plural(left, "more day")} after today. After that the game replays old rounds, one a day, each with a fresh board.`
-    : "The written rounds have run out, so the game is replaying old ones, one a day, each with a fresh board.";
+    ? `New rounds are written up to ${longDay(last.date)}: ${plural(left, "more day")} after today. After that the game replays old rounds, one a day.`
+    : "The written rounds have run out, so the game is replaying old ones, one a day.";
 
   const box = $("#coming");
   box.replaceChildren();

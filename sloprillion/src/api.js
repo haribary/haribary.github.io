@@ -112,7 +112,8 @@ export function createApi(date, query) {
       return null;
     },
 
-    // Today's leaderboard ({ top, you }), with this player's own row marked, or null.
+    // The leaderboard ({ top, you }): the best results of any day, with this
+    // player's own rows marked and where today's game stands, or null.
     async board() {
       const ctl = new AbortController();
       const timer = setTimeout(() => ctl.abort(), 8000);

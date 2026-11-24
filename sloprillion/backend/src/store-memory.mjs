@@ -9,8 +9,16 @@ const BUCKETS = 71;
 export const boardKey = (score, at, session) =>
   `${String(999 - score).padStart(3, "0")}#${String(Math.floor(at)).padStart(13, "0")}#${session}`;
 
+// Whether a board key is one of this session's (a session id holds no "#").
+export const ownsBoardKey = (session, key) => key.endsWith("#" + session);
+
+// Every entry goes on two boards: its day's, and this one, which holds every
+// day's entries and is the board players see.
+export const ALL_TIME = "ALL";
+
 export function createMemoryStore() {
-  const boards = new Map(); // date -> Map(session -> { name, score, key })
+  const boards = new Map(); // board (a date, or ALL_TIME) -> Map(board key -> { name, score, key })
+  const named = new Map(); // "date|session" -> the entry that day's game went on the boards as
   const states = new Map(); // "date|session|pid" -> { attempts, judgeCalls, locked, a, pts }
   const verdicts = new Map(); // "vk|key" -> verdict
   const budget = new Map(); // date -> calls
@@ -101,38 +109,41 @@ export function createMemoryStore() {
       return h ? { counts: [...h.b], players: h.players } : { counts: new Array(BUCKETS).fill(0), players: 0 };
     },
 
-    // Put a finished session on the day's leaderboard under a name. Once per
-    // session: the first name stays. Returns { first, entry } with entry as
-    // { name, score, key }, or null if the session has not finished.
+    // Put a day's finished session on the leaderboards (the day's own and the
+    // all-time one) under a name. Once per session per day: the first name
+    // stays. Returns { first, entry } with entry as { name, score, key }, or
+    // null if the session has not finished.
     async postBoard(date, session, name, at) {
       const fk = `${date}|${session}`;
       if (!finished.has(fk)) return null;
-      const day = boards.get(date) || new Map();
-      boards.set(date, day);
-      if (day.has(session)) return { first: false, entry: { ...day.get(session) } };
+      if (named.has(fk)) return { first: false, entry: { ...named.get(fk) } };
       const score = finished.get(fk);
       const entry = { name, score, key: boardKey(score, at, session) };
-      day.set(session, entry);
+      named.set(fk, entry);
+      for (const board of [date, ALL_TIME]) {
+        if (!boards.has(board)) boards.set(board, new Map());
+        boards.get(board).set(entry.key, entry);
+      }
       return { first: true, entry: { ...entry } };
     },
 
     async getBoardEntry(date, session) {
-      const entry = boards.get(date)?.get(session);
+      const entry = named.get(`${date}|${session}`);
       return entry ? { ...entry } : null;
     },
 
-    // The best `limit` entries, best first.
-    async getBoardTop(date, limit) {
-      return [...(boards.get(date)?.values() || [])]
+    // The best `limit` entries of a board (a date, or ALL_TIME), best first.
+    async getBoardTop(board, limit) {
+      return [...(boards.get(board)?.values() || [])]
         .sort((a, b) => (a.key < b.key ? -1 : 1))
         .slice(0, limit)
         .map((entry) => ({ ...entry }));
     },
 
-    // 1 for the best entry of the day.
-    async getBoardRank(date, key) {
+    // 1 for the best entry on the board.
+    async getBoardRank(board, key) {
       let rank = 1;
-      for (const entry of boards.get(date)?.values() || []) if (entry.key < key) rank += 1;
+      for (const entry of boards.get(board)?.values() || []) if (entry.key < key) rank += 1;
       return rank;
     },
 
